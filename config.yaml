@@ -1,0 +1,23 @@
+mqtt:
+  broker: localhost
+  port: 1883
+  username: ""
+  password: ""
+  # QoS 1 ensures delivery without duplication overhead of QoS 2
+  qos: 1
+  keepalive: 60
+
+# Minimum sensor readings accumulated before a decision is triggered.
+# Increase for noisier sensors; set to 1 for pre-aggregated daily payloads.
+decision_trigger_count: 24
+
+fields:
+  - id: field_001
+    crop: wheat
+    area_m2: 10000       # field area in square metres
+    root_depth: 0.6      # root zone depth in metres
+    latitude: 39.93
+    longitude: 32.86
+    elevation: 850.0
+    wav: 100.0           # plant-available water at season start (mm)
+    horizon_days: 30     # yield forecast horizon: 30, 60, or 90
