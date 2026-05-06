@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %} — History{% endblock %}
+
+{% block content %}
+<!-- Toolbar -->
+<section class="mb-lg">
+  <form id="filter-form"
+        hx-get="/history/table"
+        hx-target="#history-table"
+        hx-swap="outerHTML"
+        hx-trigger="submit"
+        class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-wrap items-center justify-between gap-md">
+    <div class="flex items-center gap-md flex-wrap">
+      <input type="hidden" name="page" value="1"/>
+      <div class="flex items-center bg-surface-container rounded-lg border border-outline-variant px-md py-sm gap-sm">
+        <span class="material-symbols-outlined text-on-surface-variant text-[18px]">calendar_today</span>
+        <input type="date" name="date_from" value="{{ date_from }}"
+               class="bg-transparent font-data-md text-on-surface border-none focus:outline-none"/>
+        <span class="text-on-surface-variant mx-xs">–</span>
+        <input type="date" name="date_to" value="{{ date_to }}"
+               class="bg-transparent font-data-md text-on-surface border-none focus:outline-none"/>
+      </div>
+      <div class="relative">
+        <select name="field_id"
+                class="bg-surface-container border border-outline-variant rounded-lg px-md py-sm pr-xl appearance-none font-data-md focus:outline-none focus:border-primary">
+          {% for f in fields %}
+          <option value="{{ f.id }}" {% if f.id == field_id %}selected{% endif %}>{{ f.id }}</option>
+          {% endfor %}
+        </select>
+        <span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-sm">
+      <button type="submit"
+              class="px-md py-sm rounded-lg font-label text-label bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors">
+        Apply Filters
+      </button>
+      <a href="/history/export?field_id={{ field_id }}&date_from={{ date_from }}&date_to={{ date_to }}"
+         class="flex items-center gap-sm px-md py-sm rounded-lg font-label text-label text-primary border border-outline-variant hover:bg-primary-fixed transition-colors">
+        <span class="material-symbols-outlined text-[18px]">download</span>
+        Export CSV
+      </a>
+    </div>
+  </form>
+</section>
+
+<!-- Chart -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg mb-lg">
+  <div class="flex items-center justify-between mb-xl flex-wrap gap-md">
+    <div>
+      <h2 class="font-h2 text-h2 text-on-background">Historical Trends</h2>
+      <p class="font-body-sm text-on-surface-variant">{{ date_from }} — {{ date_to }}</p>
+    </div>
+    <div class="flex gap-lg flex-wrap">
+      {% for label, color in [("Soil Moisture","#4648d4"),("Air Temp","#767586"),("Humidity","#c7c4d7"),("Soil Temp","#464554")] %}
+      <div class="flex items-center gap-sm">
+        <span class="w-6 h-[1.5px] inline-block" style="background-color:{{ color }}"></span>
+        <span class="font-label text-label text-on-surface-variant">{{ label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="h-64">
+    <canvas id="historyChart"></canvas>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+  <div class="p-lg border-b border-outline-variant">
+    <h2 class="font-h2 text-h2 text-on-background">Detailed Logs</h2>
+    <p class="font-body-sm text-on-surface-variant">{{ total }} data points</p>
+  </div>
+  {% include "partials/history_table.html" %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(async function() {
+  const res  = await fetch('/api/history/chart/{{ field_id }}?date_from={{ date_from }}&date_to={{ date_to }}');
+  const rows = await res.json();
+  if (!rows.length) return;
+
+  const labels = rows.map(r => r.timestamp.slice(0,16));
+  const ctx    = document.getElementById('historyChart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Soil Moisture', data: rows.map(r => r.soil_moisture), borderColor: '#4648d4', borderWidth: 2, pointRadius: 0, tension: 0.3, yAxisID: 'y1' },
+        { label: 'Air Temp',      data: rows.map(r => r.air_temp),      borderColor: '#767586', borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y2' },
+        { label: 'Humidity',      data: rows.map(r => r.air_humidity),  borderColor: '#c7c4d7', borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y2' },
+        { label: 'Soil Temp',     data: rows.map(r => r.soil_temp),     borderColor: '#464554', borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y2' },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxTicksLimit: 10 }, grid: { display: false } },
+        y1: { position: 'left',  title: { display: true, text: 'm³/m³', font: { size: 11 } }, grid: { color: '#f5f2fe' } },
+        y2: { position: 'right', title: { display: true, text: '°C / %', font: { size: 11 } }, grid: { display: false } },
+      },
+    },
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% set sensors = [
+  ("air_temp",      "Air Temp",      air_temp,      "°C",  "thermostat",           "air_temp"),
+  ("air_humidity",  "Air Humidity",  air_humidity,  "%",   "humidity_percentage",  "air_humidity"),
+  ("soil_moisture", "Soil Moisture", soil_moisture, " m³/m³", "water_drop",        "soil_moisture"),
+  ("soil_temp",     "Soil Temp",     soil_temp,     "°C",  "device_thermostat",    "soil_temp"),
+] %}
+
+<div id="sensor-grid"
+     hx-get="/monitoring/sensors/{{ field_id }}"
+     hx-trigger="every 5s"
+     hx-swap="outerHTML">
+
+  <div class="grid grid-cols-2 gap-lg">
+    {% for key, label, value, unit, icon, sp_key in sensors %}
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg">
+      <div class="flex justify-between items-start mb-md">
+        <span class="font-label text-label text-on-surface-variant tracking-wider uppercase">{{ label }}</span>
+        <span class="material-symbols-outlined text-outline-variant text-[18px]">{{ icon }}</span>
+      </div>
+      <div class="font-data-lg text-[32px] mb-lg text-on-background">
+        {% if value is not none %}{{ "%.1f"|format(value) }}{{ unit }}{% else %}—{% endif %}
+      </div>
+      <div class="h-12 w-full flex items-end gap-[2px]">
+        {% set bars = sparklines[sp_key] %}
+        {% for h in bars %}
+        <div class="flex-1 rounded-t-sm {% if loop.last %}bg-primary{% else %}bg-primary/20{% endif %}"
+             style="height: {{ h|round(1) }}%"></div>
+        {% endfor %}
+        {% if not bars %}
+        <div class="flex-1 bg-primary/10 rounded-t-sm" style="height:40%"></div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Alarm status bar -->
+  {% set alarm_meta = [
+    ("NORMAL",   "#767586"),
+    ("IRRIGATE", "#904900"),
+    ("CRITICAL", "#ba1a1a"),
+    ("STOP",     "#4648d4"),
+  ] %}
+  <div class="mt-lg bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex items-center gap-lg flex-wrap">
+    <span class="font-label text-label text-on-surface-variant uppercase border-r border-outline-variant pr-lg">System Status</span>
+    {% for level, color in alarm_meta %}
+    <div class="flex items-center gap-xs {% if alarm == level %}opacity-100{% else %}opacity-30{% endif %}">
+      <span class="w-3 h-3 rounded-full inline-block" style="background-color:{{ color }}"></span>
+      <span class="font-label text-label {% if alarm == level %}font-semibold{% endif %}">{{ level }}</span>
+    </div>
+    {% endfor %}
+    <span class="ml-auto font-label text-label text-on-surface-variant">{{ timestamp[:19] if timestamp != '—' else '—' }}</span>
+  </div>
+</div>

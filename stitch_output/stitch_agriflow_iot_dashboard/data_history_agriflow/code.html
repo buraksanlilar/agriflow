@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#1b1b23",
+                    "tertiary-fixed": "#ffdcc5",
+                    "on-tertiary-container": "#fffbff",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "secondary": "#575992",
+                    "primary": "#4648d4",
+                    "outline": "#767586",
+                    "on-tertiary-fixed": "#301400",
+                    "secondary-container": "#bdbefe",
+                    "on-primary-fixed": "#07006c",
+                    "on-secondary-fixed-variant": "#404178",
+                    "on-error-container": "#93000a",
+                    "surface": "#fcf8ff",
+                    "secondary-fixed": "#e1e0ff",
+                    "surface-container-high": "#e9e6f3",
+                    "surface-tint": "#494bd6",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "surface-container-low": "#f5f2fe",
+                    "surface-container-highest": "#e4e1ed",
+                    "inverse-surface": "#303038",
+                    "on-surface-variant": "#464554",
+                    "surface-variant": "#e4e1ed",
+                    "inverse-on-surface": "#f2effb",
+                    "on-surface": "#1b1b23",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#b55d00",
+                    "on-primary-container": "#fffbff",
+                    "surface-container": "#efecf8",
+                    "surface-dim": "#dbd8e4",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "primary-fixed": "#e1e0ff",
+                    "tertiary-fixed-dim": "#ffb783",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#703700",
+                    "background": "#fcf8ff",
+                    "on-secondary": "#ffffff",
+                    "primary-container": "#6063ee",
+                    "surface-bright": "#fcf8ff",
+                    "tertiary": "#904900",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#13144a",
+                    "outline-variant": "#c7c4d7",
+                    "on-secondary-container": "#494b83",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#c0c1ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "3xl": "64px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "2xl": "48px",
+                    "xl": "32px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "h2": ["Inter"],
+                    "label": ["Inter"],
+                    "display": ["Inter"],
+                    "h1": ["Inter"],
+                    "data-lg": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "data-md": ["JetBrains Mono"],
+                    "body": ["Inter"]
+            },
+            "fontSize": {
+                    "h2": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "display": ["30px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "h1": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "data-lg": ["18px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "500"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "data-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "500"}],
+                    "body": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        .chart-grid-line {
+            stroke: #efecf8;
+            stroke-dasharray: 4;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-fixed selection:text-on-primary-fixed overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[48px] bg-surface border-r border-outline-variant flex flex-col py-md z-50">
+<div class="mb-xl flex items-center justify-center">
+<span class="font-h1 text-h1 font-semibold text-on-background">A</span>
+</div>
+<nav class="flex flex-col gap-lg">
+<div class="text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto hover:bg-surface-container-high transition-colors duration-200 scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto hover:bg-surface-container-high transition-colors duration-200 scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">sensors</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto hover:bg-surface-container-high transition-colors duration-200 scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">map</span>
+</div>
+<div class="bg-primary-container text-on-primary-container rounded-lg flex items-center justify-center w-8 h-8 mx-auto scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">history</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto hover:bg-surface-container-high transition-colors duration-200 scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+</div>
+</nav>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-48px)] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-xl">
+<h1 class="font-h1 text-h1 font-semibold text-on-background tracking-tight">AgriFlow</h1>
+<nav class="flex gap-lg">
+<a class="text-on-surface-variant font-body text-body hover:text-primary transition-colors duration-200" href="#">Field Alpha-1</a>
+<a class="text-on-surface-variant font-body text-body hover:text-primary transition-colors duration-200" href="#">Field Beta-4</a>
+</nav>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label text-label text-primary font-bold">LIVE</span>
+</div>
+<span class="font-data-md text-on-surface-variant">14:32:05 UTC</span>
+<div class="flex gap-md border-l border-outline-variant pl-lg ml-md">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary opacity-80 active:opacity-100 transition-opacity">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary opacity-80 active:opacity-100 transition-opacity">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-[48px] mt-16 p-lg h-[calc(100vh-64px)] overflow-y-auto scrollbar-hide max-w-[1440px] mx-auto">
+<!-- Toolbar Section -->
+<section class="mb-lg">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-wrap items-center justify-between gap-md">
+<div class="flex items-center gap-md">
+<div class="flex items-center bg-surface-container rounded-lg border border-outline-variant px-md py-sm">
+<span class="material-symbols-outlined text-on-surface-variant mr-sm">calendar_today</span>
+<span class="font-data-md text-on-surface">Oct 24, 2023 - Oct 31, 2023</span>
+</div>
+<div class="relative group">
+<div class="flex items-center bg-surface-container rounded-lg border border-outline-variant px-md py-sm cursor-pointer hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mr-sm">grid_view</span>
+<span class="font-data-md text-on-surface">Field Alpha-1</span>
+<span class="material-symbols-outlined text-on-surface-variant ml-xl">expand_more</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-md py-sm rounded-lg font-label text-label border border-outline-variant bg-white hover:bg-surface-container-low transition-colors">Last 24h</button>
+<button class="px-md py-sm rounded-lg font-label text-label border border-outline-variant bg-white hover:bg-surface-container-low transition-colors">Last 7 Days</button>
+<button class="px-md py-sm rounded-lg font-label text-label bg-primary text-on-primary hover:bg-primary-container transition-colors">Apply Filters</button>
+</div>
+</div>
+</section>
+<!-- Bento Layout: Metrics & Visualizations -->
+<div class="grid grid-cols-12 gap-lg mb-lg">
+<!-- Time Series Chart Card -->
+<div class="col-span-12 bg-white border border-outline-variant rounded-xl p-lg">
+<div class="flex items-center justify-between mb-xl">
+<div class="flex flex-col">
+<h2 class="font-h2 text-h2 text-on-background">Historical Trends</h2>
+<p class="font-body-sm text-on-surface-variant">Comparative analysis of environmental metrics</p>
+</div>
+<div class="flex gap-lg">
+<div class="flex items-center gap-sm">
+<span class="w-3 h-[1.5px] bg-primary"></span>
+<span class="font-label text-label text-on-surface-variant">Soil Moisture (%)</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-3 h-[1.5px] bg-outline"></span>
+<span class="font-label text-label text-on-surface-variant">Air Temp (°C)</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-3 h-[1.5px] bg-outline-variant"></span>
+<span class="font-label text-label text-on-surface-variant">Humidity (%)</span>
+</div>
+</div>
+</div>
+<!-- SVG Time Series Simulation -->
+<div class="w-full h-64 relative bg-surface-container-lowest rounded-lg border border-surface-container overflow-hidden">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1000 200">
+<!-- Grid Lines -->
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="1000" y1="40" y2="40"></line>
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="1000" y1="80" y2="80"></line>
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="1000" y1="120" y2="120"></line>
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="1000" y1="160" y2="160"></line>
+<!-- Soil Moisture (Indigo - High Importance) -->
+<path d="M0,150 Q50,140 100,160 T200,130 T300,140 T400,110 T500,120 T600,90 T700,100 T800,70 T900,80 T1000,60" fill="none" stroke="#4648d4" stroke-width="2"></path>
+<!-- Air Temp (Gray 400 Equivalent) -->
+<path d="M0,80 Q100,75 200,85 T400,70 T600,75 T800,65 T1000,70" fill="none" stroke="#767586" stroke-width="1.5"></path>
+<!-- Humidity (Gray 200 Equivalent) -->
+<path d="M0,120 Q100,115 200,125 T400,110 T600,130 T800,115 T1000,120" fill="none" stroke="#c7c4d7" stroke-width="1.5"></path>
+<!-- Soil Temp (Deep Gray) -->
+<path d="M0,180 Q100,178 200,182 T400,175 T600,185 T800,178 T1000,180" fill="none" stroke="#464554" stroke-width="1.5"></path>
+</svg>
+<!-- Dual Y-Axis Labels -->
+<div class="absolute left-md top-md bottom-md flex flex-col justify-between font-data-md text-[10px] text-on-surface-variant">
+<span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span>
+</div>
+<div class="absolute right-md top-md bottom-md flex flex-col justify-between font-data-md text-[10px] text-on-surface-variant">
+<span>50°C</span><span>37.5°C</span><span>25°C</span><span>12.5°C</span><span>0°C</span>
+</div>
+</div>
+</div>
+</div>
+<!-- History Table Section -->
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden mb-lg">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between">
+<div>
+<h2 class="font-h2 text-h2 text-on-background">Detailed Logs</h2>
+<p class="font-body-sm text-on-surface-variant">Per-minute telemetry data points</p>
+</div>
+<button class="flex items-center gap-sm px-md py-sm rounded-lg font-label text-label text-primary hover:bg-primary-fixed-dim transition-colors group">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Export CSV
+                </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full border-collapse text-left">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Time</th>
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Air Temp</th>
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Humidity</th>
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Soil Temp</th>
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Soil Moisture</th>
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Alarm</th>
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Volume</th>
+<th class="px-md py-sm font-label text-label text-on-surface-variant">Pump</th>
+</tr>
+</thead>
+<tbody class="font-data-md text-data-md">
+<tr class="bg-white border-b border-outline-variant/30 hover:bg-surface-container-lowest transition-colors">
+<td class="px-md py-sm text-on-surface">14:31:00</td>
+<td class="px-md py-sm text-on-surface">24.2°C</td>
+<td class="px-md py-sm text-on-surface">62%</td>
+<td class="px-md py-sm text-on-surface">19.8°C</td>
+<td class="px-md py-sm text-primary font-semibold">42.5%</td>
+<td class="px-md py-sm">
+<span class="px-xs py-[2px] rounded bg-surface-container text-on-surface-variant text-[10px] uppercase font-bold">None</span>
+</td>
+<td class="px-md py-sm text-on-surface">450L</td>
+<td class="px-md py-sm text-error">OFF</td>
+</tr>
+<tr class="bg-surface-container-lowest border-b border-outline-variant/30 hover:bg-surface-container-lowest transition-colors">
+<td class="px-md py-sm text-on-surface">14:30:00</td>
+<td class="px-md py-sm text-on-surface">24.1°C</td>
+<td class="px-md py-sm text-on-surface">61%</td>
+<td class="px-md py-sm text-on-surface">19.7°C</td>
+<td class="px-md py-sm text-primary font-semibold">42.8%</td>
+<td class="px-md py-sm">
+<span class="px-xs py-[2px] rounded bg-surface-container text-on-surface-variant text-[10px] uppercase font-bold">None</span>
+</td>
+<td class="px-md py-sm text-on-surface">450L</td>
+<td class="px-md py-sm text-error">OFF</td>
+</tr>
+<tr class="bg-white border-b border-outline-variant/30 hover:bg-surface-container-lowest transition-colors">
+<td class="px-md py-sm text-on-surface">14:29:00</td>
+<td class="px-md py-sm text-on-surface">24.3°C</td>
+<td class="px-md py-sm text-on-surface">60%</td>
+<td class="px-md py-sm text-on-surface">19.8°C</td>
+<td class="px-md py-sm text-primary font-semibold">43.1%</td>
+<td class="px-md py-sm">
+<span class="px-xs py-[2px] rounded bg-error-container text-on-error-container text-[10px] uppercase font-bold">Low PSI</span>
+</td>
+<td class="px-md py-sm text-on-surface">448L</td>
+<td class="px-md py-sm text-secondary font-bold">ON</td>
+</tr>
+<tr class="bg-surface-container-lowest border-b border-outline-variant/30 hover:bg-surface-container-lowest transition-colors">
+<td class="px-md py-sm text-on-surface">14:28:00</td>
+<td class="px-md py-sm text-on-surface">24.5°C</td>
+<td class="px-md py-sm text-on-surface">59%</td>
+<td class="px-md py-sm text-on-surface">20.1°C</td>
+<td class="px-md py-sm text-primary font-semibold">43.5%</td>
+<td class="px-md py-sm">
+<span class="px-xs py-[2px] rounded bg-surface-container text-on-surface-variant text-[10px] uppercase font-bold">None</span>
+</td>
+<td class="px-md py-sm text-on-surface">445L</td>
+<td class="px-md py-sm text-secondary font-bold">ON</td>
+</tr>
+<tr class="bg-white border-b border-outline-variant/30 hover:bg-surface-container-lowest transition-colors">
+<td class="px-md py-sm text-on-surface">14:27:00</td>
+<td class="px-md py-sm text-on-surface">24.7°C</td>
+<td class="px-md py-sm text-on-surface">58%</td>
+<td class="px-md py-sm text-on-surface">20.2°C</td>
+<td class="px-md py-sm text-primary font-semibold">43.9%</td>
+<td class="px-md py-sm">
+<span class="px-xs py-[2px] rounded bg-surface-container text-on-surface-variant text-[10px] uppercase font-bold">None</span>
+</td>
+<td class="px-md py-sm text-on-surface">440L</td>
+<td class="px-md py-sm text-secondary font-bold">ON</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-lg py-md border-t border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<span class="font-body-sm text-on-surface-variant">Showing 5 of 1,440 data points</span>
+<div class="flex items-center gap-sm">
+<button class="p-sm rounded border border-outline-variant hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<span class="font-label text-label px-md">Page 1 of 288</span>
+<button class="p-sm rounded border border-outline-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- System Visualization Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<div class="flex items-center gap-md mb-md">
+<div class="p-sm bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<h3 class="font-h2 text-h2 text-on-background">Daily Peak</h3>
+</div>
+<div class="font-data-lg text-data-lg text-on-background">28.4°C @ 12:45</div>
+<p class="font-body-sm text-on-surface-variant mt-sm">+1.2°C from previous day</p>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<div class="flex items-center gap-md mb-md">
+<div class="p-sm bg-secondary/10 rounded-lg">
+<span class="material-symbols-outlined text-secondary">water_drop</span>
+</div>
+<h3 class="font-h2 text-h2 text-on-background">Total Volume</h3>
+</div>
+<div class="font-data-lg text-data-lg text-on-background">14,280 Liters</div>
+<p class="font-body-sm text-on-surface-variant mt-sm">Cycle: 24h Aggregated</p>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<div class="flex items-center gap-md mb-md">
+<div class="p-sm bg-error/10 rounded-lg">
+<span class="material-symbols-outlined text-error">warning</span>
+</div>
+<h3 class="font-h2 text-h2 text-on-background">Alarm Events</h3>
+</div>
+<div class="font-data-lg text-data-lg text-on-background">02 Warnings</div>
+<p class="font-body-sm text-on-surface-variant mt-sm">All resolved automatically</p>
+</div>
+</div>
+</main>
+</body></html>

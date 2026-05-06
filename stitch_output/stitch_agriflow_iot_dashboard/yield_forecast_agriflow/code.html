@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriFlow - Yield Forecast</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1b1b23",
+                        "tertiary-fixed": "#ffdcc5",
+                        "on-tertiary-container": "#fffbff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "secondary": "#575992",
+                        "primary": "#4648d4",
+                        "outline": "#767586",
+                        "on-tertiary-fixed": "#301400",
+                        "secondary-container": "#bdbefe",
+                        "on-primary-fixed": "#07006c",
+                        "on-secondary-fixed-variant": "#404178",
+                        "on-error-container": "#93000a",
+                        "surface": "#fcf8ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "surface-container-high": "#e9e6f3",
+                        "surface-tint": "#494bd6",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-container-low": "#f5f2fe",
+                        "surface-container-highest": "#e4e1ed",
+                        "inverse-surface": "#303038",
+                        "on-surface-variant": "#464554",
+                        "surface-variant": "#e4e1ed",
+                        "inverse-on-surface": "#f2effb",
+                        "on-surface": "#1b1b23",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#b55d00",
+                        "on-primary-container": "#fffbff",
+                        "surface-container": "#efecf8",
+                        "surface-dim": "#dbd8e4",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "primary-fixed": "#e1e0ff",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "background": "#fcf8ff",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#6063ee",
+                        "surface-bright": "#fcf8ff",
+                        "tertiary": "#904900",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#13144a",
+                        "outline-variant": "#c7c4d7",
+                        "on-secondary-container": "#494b83",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#c0c1ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "3xl": "64px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Inter"],
+                        "label": ["Inter"],
+                        "display": ["Inter"],
+                        "h1": ["Inter"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-sm": ["Inter"],
+                        "data-md": ["JetBrains Mono"],
+                        "body": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h2": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "display": ["30px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "h1": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "data-lg": ["18px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "500"}],
+                        "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                        "data-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "500"}],
+                        "body": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #fcf8ff;
+            color: #1b1b23;
+        }
+    </style>
+</head>
+<body class="font-body text-body">
+<!-- SideNavBar Shell -->
+<nav class="fixed left-0 top-0 h-full w-[48px] bg-surface border-r border-outline-variant flex flex-col py-md z-50">
+<div class="mb-xl flex justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div class="flex flex-col gap-sm">
+<div class="text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+</div>
+<div class="bg-primary-container text-on-primary-container rounded-lg flex items-center justify-center w-8 h-8 mx-auto transition-transform scale-95 cursor-default">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+</div>
+<div class="mt-auto text-on-surface-variant hover:text-primary flex items-center justify-center w-8 h-8 mx-auto transition-colors duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</div>
+</div>
+</nav>
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-48px)] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-lg">
+<h1 class="font-h1 text-h1 font-semibold text-on-background">AgriFlow</h1>
+<nav class="hidden md:flex gap-md">
+<a class="text-on-surface-variant font-body text-body hover:text-primary transition-colors" href="#">Field Alpha-1</a>
+<a class="text-primary font-semibold border-b-2 border-primary py-1" href="#">Yield Forecast</a>
+<a class="text-on-surface-variant font-body text-body hover:text-primary transition-colors" href="#">Field Beta-4</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex flex-col items-end mr-md">
+<span class="font-label text-label text-primary font-bold">LIVE</span>
+<span class="font-label text-[10px] text-on-surface-variant">14:32:05 UTC</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-opacity opacity-80 active:opacity-100">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-opacity opacity-80 active:opacity-100">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[48px] pt-16 min-h-screen">
+<div class="max-w-[1440px] mx-auto p-lg lg:p-2xl">
+<header class="mb-xl">
+<h2 class="font-display text-display text-on-background">Yield Forecast Engine</h2>
+<p class="text-on-surface-variant mt-xs">Harness predictive IoT data to simulate harvest outcomes.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg items-start">
+<!-- Left Column: Inputs -->
+<section class="bg-white border border-outline-variant rounded-xl p-lg">
+<form class="space-y-lg">
+<!-- Crop Dropdown -->
+<div class="space-y-sm">
+<label class="font-label text-label text-on-surface-variant block">Target Crop Species</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm appearance-none focus:outline-none focus:border-primary transition-colors">
+<option>Wheat (Winter)</option>
+<option>Corn (Yellow)</option>
+<option>Soybeans</option>
+<option>Barley</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Horizon Segmented Buttons -->
+<div class="space-y-sm">
+<label class="font-label text-label text-on-surface-variant block">Forecasting Horizon</label>
+<div class="flex w-full bg-surface-container-low p-xs rounded-lg border border-outline-variant">
+<button class="flex-1 py-sm font-label text-label text-primary bg-white rounded shadow-sm border border-outline-variant/30" type="button">30d</button>
+<button class="flex-1 py-sm font-label text-label text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">60d</button>
+<button class="flex-1 py-sm font-label text-label text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">90d</button>
+</div>
+</div>
+<!-- 3-column input grid -->
+<div class="grid grid-cols-3 gap-md">
+<div class="space-y-sm">
+<label class="font-label text-label text-on-surface-variant block">Soil Moisture %</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm focus:outline-none focus:border-primary transition-colors font-data-md text-data-md" type="number" value="24"/>
+</div>
+<div class="space-y-sm">
+<label class="font-label text-label text-on-surface-variant block">Avg Temp °C</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm focus:outline-none focus:border-primary transition-colors font-data-md text-data-md" type="number" value="21"/>
+</div>
+<div class="space-y-sm">
+<label class="font-label text-label text-on-surface-variant block">Nitrogen (N)</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm focus:outline-none focus:border-primary transition-colors font-data-md text-data-md" type="number" value="180"/>
+</div>
+</div>
+<button class="w-full bg-primary text-white font-h2 text-h2 py-md rounded-lg hover:bg-primary-container transition-colors active:scale-[0.98] mt-xl" type="button">
+                            Run Forecast
+                        </button>
+</form>
+</section>
+<!-- Right Column: Results -->
+<section class="space-y-lg">
+<!-- Final State Panel -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg relative overflow-hidden">
+<div class="flex flex-col items-center text-center py-xl">
+<span class="font-label text-label text-on-surface-variant mb-sm uppercase tracking-widest">Predicted Efficiency</span>
+<div class="flex items-baseline gap-sm">
+<span class="font-data-lg text-[64px] leading-none text-on-background font-bold">5,280</span>
+<span class="font-data-md text-h2 text-on-surface-variant">kg/ha</span>
+</div>
+<p class="text-primary-fixed-variant font-label text-label mt-md px-md py-xs bg-primary-container/10 rounded-full border border-primary/20">
+                                +12.4% vs Previous Cycle
+                            </p>
+</div>
+<!-- Visualization -->
+<div class="mt-xl h-48 relative flex items-end justify-around px-xl">
+<!-- Comparison Bar Chart -->
+<div class="flex flex-col items-center gap-sm w-16">
+<div class="w-full bg-surface-container-highest border border-outline-variant/30 h-24 rounded-t-sm"></div>
+<span class="font-label text-[10px] text-on-surface-variant">Drought</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-16">
+<div class="w-full bg-primary border border-primary h-40 rounded-t-sm"></div>
+<span class="font-label text-[10px] text-on-surface-variant">Typical</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-16">
+<div class="w-full bg-surface-container-highest border border-outline-variant/30 h-44 rounded-t-sm"></div>
+<span class="font-label text-[10px] text-on-surface-variant">Optimal</span>
+</div>
+<!-- Indigo Overlay Line (Target Indicator) -->
+<div class="absolute bottom-[160px] left-0 w-full border-t border-primary border-dashed z-10">
+<span class="absolute -top-5 right-2 font-data-md text-[10px] text-primary bg-white px-xs">TARGET_THRESHOLD</span>
+</div>
+</div>
+<div class="mt-lg pt-lg border-t border-outline-variant flex justify-between items-center">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="verified">verified</span>
+<span class="font-label text-body-sm text-on-surface-variant">day-30 forecast · wheat · field_001</span>
+</div>
+<button class="text-primary hover:underline font-label text-label">Export PDF</button>
+</div>
+</div>
+<!-- Placeholder/Empty state for secondary data -->
+<div class="border-2 border-dashed border-outline-variant rounded-xl h-32 flex items-center justify-center bg-surface-container-low/30 px-xl">
+<div class="text-center">
+<span class="material-symbols-outlined text-outline-variant block mb-sm" data-icon="analytics">analytics</span>
+<span class="text-on-surface-variant font-label text-label">Historical Variance Data Hidden · Run new simulation to populate</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Contextual Data Cards (Bento Style) -->
+<div class="mt-lg grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="bg-white border border-outline-variant rounded-xl p-lg flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="font-label text-label text-on-surface-variant">System Confidence</span>
+<span class="material-symbols-outlined text-primary" data-icon="psychology">psychology</span>
+</div>
+<div>
+<span class="font-data-lg text-h1 text-on-background">94.2%</span>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-sm">
+<div class="bg-primary h-full w-[94%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-lg flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="font-label text-label text-on-surface-variant">Water Necessity</span>
+<span class="material-symbols-outlined text-secondary" data-icon="water_drop">water_drop</span>
+</div>
+<div>
+<span class="font-data-lg text-h1 text-on-background">Low</span>
+<p class="font-label text-body-sm text-on-surface-variant mt-sm">Post-forecast irrigation not required.</p>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-lg overflow-hidden relative h-40">
+<div class="relative z-10 flex flex-col justify-between h-full">
+<span class="font-label text-label text-on-surface-variant">Field Environment</span>
+<div class="flex gap-md">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="device_thermostat">device_thermostat</span>
+<span class="font-data-md text-data-md">24.1°C</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="air">air</span>
+<span class="font-data-md text-data-md">12km/h</span>
+</div>
+</div>
+</div>
+<!-- Background illustrative element -->
+<div class="absolute -right-4 -bottom-4 opacity-5">
+<span class="material-symbols-outlined text-[120px]" data-icon="agriculture">agriculture</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

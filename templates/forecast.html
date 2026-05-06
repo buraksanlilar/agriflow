@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %} — Yield Forecast{% endblock %}
+
+{% block content %}
+<header class="mb-xl">
+  <h2 class="font-display text-display text-on-background">Yield Forecast Engine</h2>
+  <p class="text-on-surface-variant mt-xs">Predictive IoT-driven harvest outcome simulation.</p>
+</header>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg items-start">
+
+  <!-- Form -->
+  <section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+    <form hx-post="/forecast/run"
+          hx-target="#forecast-result"
+          hx-swap="outerHTML"
+          hx-indicator="#forecast-spinner"
+          class="space-y-lg">
+
+      <input type="hidden" name="field_id" value="{{ field_id }}"/>
+
+      <!-- Crop -->
+      <div class="space-y-sm">
+        <label class="font-label text-label text-on-surface-variant block">Target Crop</label>
+        <div class="relative">
+          <select name="crop" class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm appearance-none focus:outline-none focus:border-primary transition-colors font-data-md">
+            {% for c in crops %}
+            <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+          </select>
+          <span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Horizon -->
+      <div class="space-y-sm">
+        <label class="font-label text-label text-on-surface-variant block">Forecasting Horizon</label>
+        <div class="flex w-full bg-surface-container-low p-xs rounded-lg border border-outline-variant" x-data="{ h: 30 }">
+          {% for d in [30, 60, 90] %}
+          <label class="flex-1 text-center cursor-pointer">
+            <input type="radio" name="horizon_days" value="{{ d }}" class="sr-only"
+                   {% if d == 30 %}checked{% endif %}
+                   @change="h = {{ d }}"/>
+            <span class="block py-sm font-label text-label rounded transition-colors"
+                  :class="{{ d }} === h ? 'bg-white text-primary border border-outline-variant/30 shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high'">
+              {{ d }}d
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Feature inputs -->
+      <div class="space-y-sm">
+        <p class="font-label text-label text-on-surface-variant">Sensor Aggregates (daily)</p>
+        <div class="grid grid-cols-3 gap-md">
+          {% set sensor_fields = [
+            ("mean_temp",           "Mean Temp °C",     latest.get("air_temp",      18.0)),
+            ("total_precip",        "Precip mm",        0.0),
+            ("mean_humidity",       "Humidity %",       latest.get("air_humidity",  60.0)),
+            ("mean_soil_temp",      "Soil Temp °C",     latest.get("soil_temp",     16.0)),
+            ("mean_soil_moisture",  "Soil Moisture",    latest.get("soil_moisture", 0.28)),
+            ("max_lai",             "Max LAI",          2.0),
+          ] %}
+          {% for name, label, default in sensor_fields %}
+          <div class="space-y-xs">
+            <label class="font-label text-label text-on-surface-variant block">{{ label }}</label>
+            <input type="number" step="any" name="{{ name }}" value="{{ default }}"
+                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm focus:outline-none focus:border-primary transition-colors font-data-md text-data-md"/>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="space-y-sm">
+        <p class="font-label text-label text-on-surface-variant">Season & Location</p>
+        <div class="grid grid-cols-3 gap-md">
+          {% set meta_fields = [
+            ("season_days", "Season Day",  150),
+            ("year",        "Year",        2024),
+            ("wav",         "WAV mm",      field_cfg.wav),
+            ("latitude",    "Latitude",    field_cfg.latitude),
+            ("longitude",   "Longitude",   field_cfg.longitude),
+            ("elevation",   "Elevation m", field_cfg.elevation),
+          ] %}
+          {% for name, label, default in meta_fields %}
+          <div class="space-y-xs">
+            <label class="font-label text-label text-on-surface-variant block">{{ label }}</label>
+            <input type="number" step="any" name="{{ name }}" value="{{ default }}"
+                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm focus:outline-none focus:border-primary transition-colors font-data-md text-data-md"/>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button type="submit"
+              class="w-full bg-primary text-on-primary font-h2 text-h2 py-md rounded-lg hover:bg-on-primary-fixed-variant transition-colors active:scale-[0.98] mt-xl relative">
+        <span id="forecast-spinner" class="htmx-indicator absolute left-md top-1/2 -translate-y-1/2">
+          <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+        </span>
+        Run Forecast
+      </button>
+    </form>
+  </section>
+
+  <!-- Result panel -->
+  <section>
+    <div id="forecast-result">
+      <div class="border-2 border-dashed border-outline-variant rounded-xl h-64 flex flex-col items-center justify-center gap-sm">
+        <span class="material-symbols-outlined text-outline-variant text-[32px]">analytics</span>
+        <span class="text-on-surface-variant font-label text-label">Configure inputs and run a forecast</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

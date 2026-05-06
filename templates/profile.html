@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %} — Moisture Profile{% endblock %}
+
+{% block content %}
+<header class="mb-lg flex items-center justify-between flex-wrap gap-md">
+  <div>
+    <h2 class="font-h2 text-h2 text-on-background">Moisture Profile</h2>
+    <p class="font-body text-body text-on-surface-variant">Annual soil moisture envelope by crop and day of year.</p>
+  </div>
+  <!-- Crop selector -->
+  <form method="get">
+    <input type="hidden" name="field_id" value="{{ field_id }}"/>
+    <div class="relative">
+      <select name="crop" onchange="this.form.submit()"
+              class="bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm pr-xl appearance-none focus:outline-none focus:border-primary transition-colors font-data-md">
+        {% for c in crops %}
+        <option value="{{ c }}" {% if c == selected_crop %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+      <span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">expand_more</span>
+    </div>
+  </form>
+</header>
+
+<!-- Chart card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg mb-lg">
+  <div class="flex justify-between items-center mb-lg flex-wrap gap-md">
+    <div>
+      <span class="font-label text-label text-outline uppercase tracking-widest block mb-xs">Day of Year</span>
+      <span class="font-display text-display text-primary">{{ today_doy }}</span>
+    </div>
+    <div class="flex gap-md flex-wrap">
+      {% for label, color in [("Critical","#ba1a1a"),("Low","#904900"),("Optimal","#4648d4"),("High","#6063ee"),("Upper","#c0c1ff")] %}
+      <div class="flex items-center gap-xs">
+        <span class="w-8 h-[2px] inline-block rounded" style="background-color:{{ color }}"></span>
+        <span class="font-label text-label text-on-surface-variant">{{ label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="h-72">
+    <canvas id="moistureChart"></canvas>
+  </div>
+  <div class="flex justify-between mt-sm">
+    <span class="font-label text-label text-outline">Day 1</span>
+    <span class="font-label text-label text-primary font-bold">Today ({{ today_doy }})</span>
+    <span class="font-label text-label text-outline">Day 366</span>
+  </div>
+</section>
+
+<!-- Reference yield table -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden mb-lg">
+  <table class="w-full text-left">
+    <thead>
+      <tr class="border-b border-outline-variant bg-surface-container-low">
+        <th class="px-lg py-md font-label text-label text-on-surface-variant uppercase tracking-wider">Scenario</th>
+        <th class="px-lg py-md font-label text-label text-on-surface-variant uppercase tracking-wider">Reference Yield (kg/ha)</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-outline-variant">
+      <tr class="hover:bg-surface-container-low transition-colors">
+        <td class="px-lg py-md font-body text-on-surface">Optimal</td>
+        <td class="px-lg py-md font-data-md text-data-md text-primary">{{ ref.optimal }}</td>
+      </tr>
+      <tr class="hover:bg-surface-container-low transition-colors">
+        <td class="px-lg py-md font-body text-on-surface">Typical</td>
+        <td class="px-lg py-md font-data-md text-data-md">{{ ref.typical }}</td>
+      </tr>
+      <tr class="hover:bg-surface-container-low transition-colors">
+        <td class="px-lg py-md font-body text-on-surface">Drought</td>
+        <td class="px-lg py-md font-data-md text-data-md text-error">{{ ref.drought }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(async function() {
+  const res  = await fetch('/api/profile/{{ selected_crop }}');
+  const d    = await res.json();
+  const today = {{ today_doy }};
+  const ctx   = document.getElementById('moistureChart').getContext('2d');
+
+  const lineOpts = (color, label) => ({
+    label, data: d.days.map((day, i) => ({ x: day, y: d[label.toLowerCase().replace(' ','_') + '_sm']?.[i] })),
+    borderColor: color, borderWidth: 1.5, pointRadius: 0, tension: 0.4, fill: false,
+  });
+
+  // Map series names to profile keys
+  const series = [
+    { key: 'critical_sm', label: 'Critical', color: '#ba1a1a' },
+    { key: 'low_sm',      label: 'Low',      color: '#904900' },
+    { key: 'optimal_sm',  label: 'Optimal',  color: '#4648d4' },
+    { key: 'high_sm',     label: 'High',     color: '#6063ee' },
+    { key: 'upper_sm',    label: 'Upper',    color: '#c0c1ff' },
+  ];
+
+  const datasets = series.map(s => ({
+    label: s.label,
+    data: d.days.map((day, i) => ({ x: day, y: d[s.key][i] })),
+    borderColor: s.color, borderWidth: 1.5, pointRadius: 0, tension: 0.4, fill: false,
+  }));
+
+  // Today's optimal value dot
+  const todayIdx = d.days.indexOf(today) >= 0 ? d.days.indexOf(today) : today;
+  const todayOptimal = d.optimal_sm[todayIdx] || d.optimal_sm[Math.min(todayIdx, d.optimal_sm.length - 1)];
+
+  datasets.push({
+    label: 'Today',
+    data: [{ x: today, y: todayOptimal }],
+    borderColor: '#4648d4', backgroundColor: '#4648d4',
+    pointRadius: 6, pointHoverRadius: 8, showLine: false,
+  });
+
+  new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      parsing: false,
+      plugins: {
+        legend: { display: false },
+        annotation: {
+          annotations: {
+            todayLine: {
+              type: 'line', xMin: today, xMax: today,
+              borderColor: '#4648d4', borderWidth: 1, borderDash: [4, 4],
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear', min: 1, max: 366,
+          grid: { color: '#f5f2fe' },
+          ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxTicksLimit: 12 },
+        },
+        y: {
+          grid: { color: '#f5f2fe' },
+          ticks: { font: { family: 'JetBrains Mono', size: 10 } },
+          title: { display: true, text: 'm³/m³', font: { family: 'Inter', size: 11 } },
+        },
+      },
+    },
+  });
+})();
+</script>
+{% endblock %}

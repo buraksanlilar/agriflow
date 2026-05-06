@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AgriFlow{% block title %}{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<script id="tw-config">
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#4648d4", "on-primary": "#ffffff",
+        "primary-container": "#6063ee", "on-primary-container": "#fffbff",
+        "primary-fixed": "#e1e0ff", "primary-fixed-dim": "#c0c1ff",
+        "on-primary-fixed": "#07006c", "on-primary-fixed-variant": "#2f2ebe",
+        "secondary": "#575992", "on-secondary": "#ffffff",
+        "secondary-container": "#bdbefe", "on-secondary-container": "#494b83",
+        "tertiary": "#904900", "on-tertiary": "#ffffff",
+        "tertiary-container": "#b55d00", "tertiary-fixed": "#ffdcc5",
+        "error": "#ba1a1a", "on-error": "#ffffff",
+        "error-container": "#ffdad6", "on-error-container": "#93000a",
+        "surface": "#fcf8ff", "surface-dim": "#dbd8e4", "surface-bright": "#fcf8ff",
+        "surface-container-lowest": "#ffffff", "surface-container-low": "#f5f2fe",
+        "surface-container": "#efecf8", "surface-container-high": "#e9e6f3",
+        "surface-container-highest": "#e4e1ed",
+        "on-surface": "#1b1b23", "on-surface-variant": "#464554",
+        "outline": "#767586", "outline-variant": "#c7c4d7",
+        "inverse-surface": "#303038", "inverse-on-surface": "#f2effb",
+        "inverse-primary": "#c0c1ff", "surface-tint": "#494bd6",
+        "background": "#fcf8ff", "on-background": "#1b1b23",
+        "surface-variant": "#e4e1ed",
+      },
+      borderRadius: { "DEFAULT": "0.25rem", "lg": "12px", "xl": "0.75rem", "full": "9999px" },
+      spacing: { "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "32px", "2xl": "48px", "3xl": "64px" },
+      fontFamily: { "body": ["Inter"], "h1": ["Inter"], "h2": ["Inter"], "label": ["Inter"], "display": ["Inter"], "data-lg": ["JetBrains Mono"], "data-md": ["JetBrains Mono"] },
+      fontSize: {
+        "h1": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
+        "h2": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+        "body": ["14px", { lineHeight: "20px" }],
+        "body-sm": ["13px", { lineHeight: "18px" }],
+        "label": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }],
+        "display": ["30px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "600" }],
+        "data-lg": ["18px", { lineHeight: "24px", fontWeight: "500" }],
+        "data-md": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+      },
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+  .nav-icon { @apply flex items-center justify-center w-8 h-8 mx-auto rounded-lg transition-all duration-200 cursor-pointer; }
+  .nav-icon.active { @apply bg-primary-container text-on-primary-container; }
+  .nav-icon:not(.active) { @apply text-on-surface-variant hover:text-primary hover:bg-surface-container-high; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+</style>
+{% block head %}{% endblock %}
+</head>
+<body class="bg-background text-on-surface font-body overflow-hidden">
+
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-[48px] border-r border-outline-variant flex flex-col py-md z-50 bg-surface">
+  <div class="mb-xl flex items-center justify-center">
+    <span class="material-symbols-outlined text-primary text-[20px]">grain</span>
+  </div>
+  <nav class="flex flex-col gap-sm flex-1">
+    <a href="/monitoring" class="nav-icon {% if active_page == 'monitoring' %}active{% endif %}">
+      <span class="material-symbols-outlined text-[20px]">dashboard</span>
+    </a>
+    <a href="/forecast" class="nav-icon {% if active_page == 'forecast' %}active{% endif %}">
+      <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+    </a>
+    <a href="/profile" class="nav-icon {% if active_page == 'profile' %}active{% endif %}">
+      <span class="material-symbols-outlined text-[20px]">water_drop</span>
+    </a>
+    <a href="/history" class="nav-icon {% if active_page == 'history' %}active{% endif %}">
+      <span class="material-symbols-outlined text-[20px]">history</span>
+    </a>
+  </nav>
+</aside>
+
+<!-- Top navbar -->
+<header class="fixed top-0 right-0 w-[calc(100%-48px)] h-16 border-b border-outline-variant bg-surface flex justify-between items-center px-lg z-40">
+  <div class="flex items-center gap-xl">
+    <h1 class="font-h1 text-h1 text-on-background">AgriFlow</h1>
+    <nav class="hidden md:flex items-center gap-lg">
+      {% for f in fields %}
+      <a href="?field_id={{ f.id }}"
+         class="h-16 px-xs font-body text-body transition-colors
+                {% if f.id == field_id %}text-primary font-semibold border-b-2 border-primary{% else %}text-on-surface-variant hover:text-primary{% endif %}">
+        {{ f.id }}
+      </a>
+      {% endfor %}
+    </nav>
+  </div>
+  <div class="flex items-center gap-md" x-data="clock()">
+    <div class="flex items-center gap-xs px-sm py-xs bg-primary-container/10 rounded-full">
+      <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+      <span class="font-label text-label text-primary">LIVE</span>
+    </div>
+    <span class="font-data-md text-data-md text-on-surface-variant" x-text="time"></span>
+    <div class="flex items-center gap-sm ml-md">
+      <button class="text-on-surface-variant hover:text-primary opacity-80">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+      </button>
+      <button class="text-on-surface-variant hover:text-primary opacity-80">
+        <span class="material-symbols-outlined text-[20px]">account_circle</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main content -->
+<main class="pt-16 pl-[48px] h-screen w-full overflow-y-auto scrollbar-hide bg-background">
+  <div class="max-w-[1440px] mx-auto p-lg">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<script>
+function clock() {
+  return {
+    time: '',
+    init() {
+      const tick = () => {
+        this.time = new Date().toLocaleTimeString('en-GB', { timeZone: 'UTC', hour12: false }) + ' UTC';
+      };
+      tick();
+      setInterval(tick, 1000);
+    }
+  }
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

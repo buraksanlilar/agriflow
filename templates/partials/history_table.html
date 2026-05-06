@@ -1,0 +1,74 @@
+{% set alarm_badge = {
+  "NORMAL":   "bg-surface-container text-on-surface-variant",
+  "IRRIGATE": "bg-tertiary-container/30 text-tertiary",
+  "CRITICAL": "bg-error-container text-on-error-container",
+  "STOP":     "bg-primary-fixed text-primary",
+} %}
+
+<div id="history-table">
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse text-left">
+      <thead>
+        <tr class="bg-surface-container-low border-b border-outline-variant">
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Time</th>
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Air Temp</th>
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Humidity</th>
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Soil Temp</th>
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Soil Moisture</th>
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Alarm</th>
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Volume</th>
+          <th class="px-md py-sm font-label text-label text-on-surface-variant">Pump</th>
+        </tr>
+      </thead>
+      <tbody class="font-data-md text-data-md divide-y divide-outline-variant/30">
+        {% for r in rows %}
+        <tr class="{% if loop.index is odd %}bg-white{% else %}bg-surface-container-lowest{% endif %} hover:bg-surface-container-low transition-colors">
+          <td class="px-md py-sm text-on-surface-variant text-body-sm">{{ r.timestamp[:16] if r.timestamp else '—' }}</td>
+          <td class="px-md py-sm">{{ "%.1f°C"|format(r.air_temp) if r.air_temp else '—' }}</td>
+          <td class="px-md py-sm">{{ "%.0f%%"|format(r.air_humidity) if r.air_humidity else '—' }}</td>
+          <td class="px-md py-sm">{{ "%.1f°C"|format(r.soil_temp) if r.soil_temp else '—' }}</td>
+          <td class="px-md py-sm text-primary font-semibold">{{ "%.3f"|format(r.soil_moisture) if r.soil_moisture else '—' }}</td>
+          <td class="px-md py-sm">
+            {% set al = r.alarm or 'NORMAL' %}
+            <span class="px-xs py-[2px] rounded text-[10px] uppercase font-bold {{ alarm_badge.get(al, alarm_badge['NORMAL']) }}">
+              {{ al }}
+            </span>
+          </td>
+          <td class="px-md py-sm">{{ "{:,.0f} L".format(r.volume_litres) if r.volume_litres else '—' }}</td>
+          <td class="px-md py-sm {% if r.pump_status == 'ON' %}text-primary font-bold{% else %}text-error{% endif %}">
+            {{ r.pump_status or 'OFF' }}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="px-md py-xl text-center text-on-surface-variant font-body-sm">
+            No data for the selected range.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="px-lg py-md border-t border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+    <span class="font-body-sm text-on-surface-variant">
+      {{ total }} data points &middot; page {{ page }} of {{ total_pages }}
+    </span>
+    <div class="flex items-center gap-sm">
+      <button {% if page <= 1 %}disabled{% endif %}
+        hx-get="/history/table?field_id={{ field_id }}&date_from={{ date_from }}&date_to={{ date_to }}&page={{ page - 1 }}"
+        hx-target="#history-table" hx-swap="outerHTML"
+        class="p-sm rounded border border-outline-variant hover:bg-surface-container transition-colors disabled:opacity-30">
+        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+      </button>
+      <span class="font-label text-label px-md">{{ page }} / {{ total_pages }}</span>
+      <button {% if page >= total_pages %}disabled{% endif %}
+        hx-get="/history/table?field_id={{ field_id }}&date_from={{ date_from }}&date_to={{ date_to }}&page={{ page + 1 }}"
+        hx-target="#history-table" hx-swap="outerHTML"
+        class="p-sm rounded border border-outline-variant hover:bg-surface-container transition-colors disabled:opacity-30">
+        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriFlow - Moisture Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#1b1b23",
+                    "tertiary-fixed": "#ffdcc5",
+                    "on-tertiary-container": "#fffbff",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "secondary": "#575992",
+                    "primary": "#4648d4",
+                    "outline": "#767586",
+                    "on-tertiary-fixed": "#301400",
+                    "secondary-container": "#bdbefe",
+                    "on-primary-fixed": "#07006c",
+                    "on-secondary-fixed-variant": "#404178",
+                    "on-error-container": "#93000a",
+                    "surface": "#fcf8ff",
+                    "secondary-fixed": "#e1e0ff",
+                    "surface-container-high": "#e9e6f3",
+                    "surface-tint": "#494bd6",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "surface-container-low": "#f5f2fe",
+                    "surface-container-highest": "#e4e1ed",
+                    "inverse-surface": "#303038",
+                    "on-surface-variant": "#464554",
+                    "surface-variant": "#e4e1ed",
+                    "inverse-on-surface": "#f2effb",
+                    "on-surface": "#1b1b23",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#b55d00",
+                    "on-primary-container": "#fffbff",
+                    "surface-container": "#efecf8",
+                    "surface-dim": "#dbd8e4",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "primary-fixed": "#e1e0ff",
+                    "tertiary-fixed-dim": "#ffb783",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#703700",
+                    "background": "#fcf8ff",
+                    "on-secondary": "#ffffff",
+                    "primary-container": "#6063ee",
+                    "surface-bright": "#fcf8ff",
+                    "tertiary": "#904900",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#13144a",
+                    "outline-variant": "#c7c4d7",
+                    "on-secondary-container": "#494b83",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#c0c1ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "3xl": "64px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "2xl": "48px",
+                    "xl": "32px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "h2": ["Inter"],
+                    "label": ["Inter"],
+                    "display": ["Inter"],
+                    "h1": ["Inter"],
+                    "data-lg": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "data-md": ["JetBrains Mono"],
+                    "body": ["Inter"]
+            },
+            "fontSize": {
+                    "h2": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "display": ["30px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "h1": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "data-lg": ["18px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "500"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "data-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "500"}],
+                    "body": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #fcf8ff; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .chart-container { position: relative; width: 100%; height: 400px; }
+        .chart-line { fill: none; stroke-width: 1.5; }
+        .grid-line { stroke: #efecf8; stroke-width: 1; }
+        .today-marker { stroke: #4648d4; stroke-width: 1.5; stroke-dasharray: 4; }
+        .data-point { fill: #4648d4; }
+    </style>
+</head>
+<body class="font-body text-on-surface">
+<!-- SideNavBar Shell -->
+<nav class="fixed left-0 top-0 h-full w-[48px] flex flex-col py-md z-50 bg-surface border-r border-outline-variant">
+<div class="mb-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="water_drop">water_drop</span>
+</div>
+<div class="flex flex-col gap-lg flex-1">
+<div class="text-on-surface-variant hover:text-primary transition-colors duration-200 flex items-center justify-center w-8 h-8 mx-auto scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+</div>
+<div class="bg-primary-container text-on-primary-container rounded-lg flex items-center justify-center w-8 h-8 mx-auto scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary transition-colors duration-200 flex items-center justify-center w-8 h-8 mx-auto scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+</div>
+<div class="text-on-surface-variant hover:text-primary transition-colors duration-200 flex items-center justify-center w-8 h-8 mx-auto scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+</div>
+<div class="mt-auto text-on-surface-variant hover:text-primary transition-colors duration-200 flex items-center justify-center w-8 h-8 mx-auto scale-95 active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</div>
+</nav>
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-48px)] h-16 flex justify-between items-center px-lg z-40 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-xl">
+<h1 class="font-h1 text-h1 font-semibold text-on-background uppercase tracking-tight">AgriFlow</h1>
+<nav class="flex gap-lg">
+<a class="text-on-surface-variant font-body text-body hover:text-primary transition-colors duration-200" href="#">Field Alpha-1</a>
+<a class="text-primary font-semibold border-b-2 border-primary py-xs" href="#">Field Beta-4</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm px-md py-xs bg-surface-container rounded-full">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span class="font-label text-label text-on-surface">LIVE</span>
+<span class="w-[1px] h-3 bg-outline-variant"></span>
+<span class="font-data-md text-data-md text-on-surface-variant">14:32:05 UTC</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[48px] pt-16 min-h-screen">
+<div class="max-w-[1440px] mx-auto p-lg flex flex-col gap-lg">
+<!-- Page Header -->
+<div class="flex flex-col gap-xs">
+<h2 class="font-h2 text-h2 text-on-background">Moisture Profile</h2>
+<p class="font-body text-body text-on-surface-variant">Annual volumetric water content monitoring across depth variants.</p>
+</div>
+<!-- Full-width Line Chart Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<div class="flex justify-between items-end mb-xl">
+<div class="flex flex-col gap-xs">
+<span class="font-label text-label text-outline uppercase tracking-widest">Active Reading</span>
+<div class="flex items-baseline gap-sm">
+<span class="font-display text-display text-primary">28.4%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">VWC @ 30cm</span>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="flex items-center gap-sm">
+<span class="w-3 h-3 rounded-full bg-primary-fixed"></span>
+<span class="font-label text-label text-on-surface-variant">Surface</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-3 h-3 rounded-full bg-primary-fixed-dim"></span>
+<span class="font-label text-label text-on-surface-variant">Root Zone</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="font-label text-label text-on-surface-variant">Deep Soil</span>
+</div>
+</div>
+</div>
+<div class="chart-container">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1200 400">
+<!-- Horizontal Grid Lines -->
+<line class="grid-line" x1="0" x2="1200" y1="100" y2="100"></line>
+<line class="grid-line" x1="0" x2="1200" y1="200" y2="200"></line>
+<line class="grid-line" x1="0" x2="1200" y1="300" y2="300"></line>
+<!-- 5 Lines Indigo Palette -->
+<!-- Line 1: Surface (Lightest) -->
+<path class="chart-line stroke-primary-fixed" d="M0,350 Q100,320 200,340 T400,300 T600,310 T800,280 T1000,260 T1200,240"></path>
+<!-- Line 2 -->
+<path class="chart-line stroke-primary-fixed-dim" d="M0,330 Q100,300 200,320 T400,280 T600,290 T800,260 T1000,240 T1200,220"></path>
+<!-- Line 3 -->
+<path class="chart-line stroke-primary" d="M0,310 Q100,280 200,300 T400,260 T600,270 T800,240 T1000,220 T1200,200"></path>
+<!-- Line 4 -->
+<path class="chart-line stroke-on-primary-fixed-variant" d="M0,290 Q100,260 200,280 T400,240 T600,250 T800,220 T1000,200 T1200,180"></path>
+<!-- Line 5: Deep (Darkest) -->
+<path class="chart-line stroke-on-primary-fixed" d="M0,270 Q100,240 200,260 T400,220 T600,230 T800,200 T1000,180 T1200,160"></path>
+<!-- Today Marker -->
+<line class="today-marker" x1="750" x2="750" y1="0" y2="400"></line>
+<!-- Current Reading Dot -->
+<circle class="data-point" cx="750" cy="245" r="5"></circle>
+<circle cx="750" cy="245" fill="#4648d4" fill-opacity="0.2" r="8"></circle>
+</svg>
+<!-- X-Axis Labels -->
+<div class="flex justify-between mt-sm">
+<span class="font-label text-label text-outline">Day 1</span>
+<span class="font-label text-label text-outline">Day 90</span>
+<span class="font-label text-label text-primary font-bold">Today (256)</span>
+<span class="font-label text-label text-outline">Day 366</span>
+</div>
+</div>
+</section>
+<!-- Reference Table Section -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-low">
+<th class="px-lg py-md font-label text-label text-on-surface-variant uppercase tracking-wider">Metric Parameter</th>
+<th class="px-lg py-md font-label text-label text-on-surface-variant uppercase tracking-wider">Typical VWC (%)</th>
+<th class="px-lg py-md font-label text-label text-on-surface-variant uppercase tracking-wider">Optimal Yield Value</th>
+<th class="px-lg py-md font-label text-label text-on-surface-variant uppercase tracking-wider">Drought Risk Threshold</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-lg py-md font-body text-on-surface">Topsoil (0-15cm)</td>
+<td class="px-lg py-md font-data-md text-data-md">18 - 24</td>
+<td class="px-lg py-md font-data-md text-data-md text-primary">22.5</td>
+<td class="px-lg py-md font-data-md text-data-md text-error">12.0</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-lg py-md font-body text-on-surface">Root Substrate (15-45cm)</td>
+<td class="px-lg py-md font-data-md text-data-md">24 - 32</td>
+<td class="px-lg py-md font-data-md text-data-md text-primary">28.0</td>
+<td class="px-lg py-md font-data-md text-data-md text-error">16.5</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-lg py-md font-body text-on-surface">Subsoil Foundation (45-90cm)</td>
+<td class="px-lg py-md font-data-md text-data-md">28 - 36</td>
+<td class="px-lg py-md font-data-md text-data-md text-primary">31.2</td>
+<td class="px-lg py-md font-data-md text-data-md text-error">21.0</td>
+</tr>
+</tbody>
+</table>
+</section>
+<!-- Bottom Layout Details (Bento-style reference) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="p-lg bg-primary-container text-on-primary-container rounded-xl flex flex-col gap-sm">
+<span class="material-symbols-outlined" data-icon="waves">waves</span>
+<h3 class="font-h2 text-h2">Hydration Index</h3>
+<p class="font-body-sm opacity-90">Current field average is 4.2% above the 10-year mean for this phenological stage.</p>
+</div>
+<div class="p-lg bg-surface-container border border-outline-variant rounded-xl flex flex-col gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="opacity">opacity</span>
+<h3 class="font-h2 text-h2">Saturation Point</h3>
+<p class="font-body-sm text-on-surface-variant">Upper limit reached at 40cm depth. Evapotranspiration rates are standard.</p>
+</div>
+<div class="p-lg bg-surface-container-highest border border-outline-variant rounded-xl flex flex-col gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="precision_manufacturing">precision_manufacturing</span>
+<h3 class="font-h2 text-h2">Sensor Health</h3>
+<p class="font-body-sm text-on-surface-variant">All 12 capacitive probes reporting 100% signal strength via LoRaWAN.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB Suppression as per rules for specialized dashboard screens -->
+</body></html>

@@ -1,0 +1,64 @@
+<div id="forecast-result">
+  {% if error %}
+  <div class="bg-error-container border border-error/30 rounded-xl p-lg text-on-error-container">
+    <p class="font-label text-label uppercase mb-xs">Forecast Error</p>
+    <p class="font-body-sm">{{ error }}</p>
+  </div>
+  {% elif predicted is not none %}
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+    <div class="flex flex-col items-center text-center py-xl">
+      <span class="font-label text-label text-on-surface-variant mb-sm uppercase tracking-widest">Predicted Yield</span>
+      <div class="flex items-baseline gap-sm">
+        <span class="font-data-lg text-[64px] leading-none text-on-background font-bold">
+          {{ "{:,.0f}".format(predicted) }}
+        </span>
+        <span class="font-data-md text-h2 text-on-surface-variant">kg/ha</span>
+      </div>
+    </div>
+
+    <!-- Bar chart via Chart.js -->
+    <div class="mt-md h-52">
+      <canvas id="forecastChart"></canvas>
+    </div>
+
+    <div class="mt-lg pt-lg border-t border-outline-variant flex justify-between items-center">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined text-primary text-sm">verified</span>
+        <span class="font-label text-body-sm text-on-surface-variant">
+          day-{{ horizon_days }} · {{ crop }} · {{ field_id }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    const ctx = document.getElementById('forecastChart').getContext('2d');
+    const predicted = {{ predicted }};
+    const labels = ['Drought', 'Typical', 'Optimal', 'Forecast'];
+    const data   = [{{ drought }}, {{ typical }}, {{ optimal }}, predicted];
+    const colors = ['#e4e1ed','#c7c4d7','#e1e0ff','#4648d4'];
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ data, backgroundColor: colors, borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 11 } } },
+          y: { grid: { color: '#f5f2fe' }, ticks: { font: { family: 'JetBrains Mono', size: 11 } },
+               title: { display: true, text: 'kg/ha', font: { family: 'Inter', size: 11 } } }
+        }
+      }
+    });
+  })();
+  </script>
+  {% else %}
+  <div class="border-2 border-dashed border-outline-variant rounded-xl h-32 flex items-center justify-center">
+    <span class="text-on-surface-variant font-label text-label">No result yet — run a forecast</span>
+  </div>
+  {% endif %}
+</div>

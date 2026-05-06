@@ -1,0 +1,61 @@
+{% set alarm_label_color = {
+  "NORMAL":   "text-on-surface-variant",
+  "IRRIGATE": "text-tertiary",
+  "CRITICAL": "text-error",
+  "STOP":     "text-primary",
+} %}
+
+<div id="irrigation-card"
+     hx-get="/monitoring/irrigation/{{ field_id }}"
+     hx-trigger="every 10s"
+     hx-swap="outerHTML"
+     class="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg h-full flex flex-col">
+
+  <h3 class="font-h2 text-h2 mb-lg">Irrigation Task</h3>
+
+  <!-- Alarm badge -->
+  <div class="mb-md px-md py-sm rounded-lg border
+    {% if alarm == 'CRITICAL' %}bg-error-container border-error/30
+    {% elif alarm == 'IRRIGATE' %}bg-tertiary-container/20 border-tertiary/30
+    {% elif alarm == 'STOP' %}bg-primary-fixed border-primary/30
+    {% else %}bg-surface-container border-outline-variant{% endif %}">
+    <p class="font-label text-label text-on-surface-variant uppercase mb-xs">Alarm Level</p>
+    <p class="font-h2 text-h2 {{ alarm_label_color.get(alarm, '') }}">{{ alarm }}</p>
+  </div>
+
+  <!-- Volume -->
+  <div class="mb-xl p-md bg-surface-container rounded-lg border border-outline-variant">
+    <p class="font-label text-label text-on-surface-variant mb-xs uppercase">Recommended Volume</p>
+    <p class="font-data-lg text-[24px] text-on-background">
+      {% if volume_litres %}{{ "{:,.0f}".format(volume_litres) }} L{% else %}— L{% endif %}
+    </p>
+  </div>
+
+  <!-- Pump toggle -->
+  <div class="flex-1 flex flex-col justify-center items-center py-xl border-y border-outline-variant mb-xl"
+       x-data="{ on: {{ 'true' if pump_status == 'ON' else 'false' }} }">
+    <p class="font-label text-label text-on-surface-variant mb-md uppercase">Manual Pump Control</p>
+    <button
+      @click="on = !on"
+      hx-post="/monitoring/pump/{{ field_id }}"
+      hx-target="#irrigation-card"
+      hx-swap="outerHTML"
+      class="relative inline-flex items-center cursor-pointer">
+      <div class="w-14 h-8 rounded-full transition-colors duration-300"
+           :class="on ? 'bg-primary' : 'bg-outline-variant'"></div>
+      <div class="absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300"
+           :class="on ? 'translate-x-7' : 'translate-x-1'"></div>
+    </button>
+    <p class="mt-md font-label text-label font-bold"
+       :class="on ? 'text-primary' : 'text-on-surface-variant'"
+       x-text="on ? 'PUMP ACTIVE' : 'PUMP OFF'"></p>
+  </div>
+
+  <!-- Footer -->
+  <div class="mt-auto">
+    <div class="flex justify-between items-center mb-md">
+      <span class="font-label text-label text-on-surface-variant">Last decision</span>
+      <span class="font-data-md text-data-md">{{ last_decision_ts[:16] if last_decision_ts != '—' else '—' }}</span>
+    </div>
+  </div>
+</div>
