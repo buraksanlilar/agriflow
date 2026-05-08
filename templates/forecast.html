@@ -114,4 +114,184 @@
   </section>
 
 </div>
+
+<!-- Daily Forecast History -->
+{% if has_daily %}
+<section class="mt-xl">
+  <div class="flex items-center justify-between mb-lg">
+    <div>
+      <h3 class="font-h2 text-h2 text-on-background">Daily Forecast History</h3>
+      <p class="font-label text-label text-on-surface-variant mt-xs">
+        IoT + OpenMeteo + Sentinel-2 — aggregated each morning
+      </p>
+    </div>
+
+    <!-- Latest values badge row -->
+    <div class="flex gap-sm">
+      {% for h, color in [(30, "primary"), (60, "secondary"), (90, "tertiary")] %}
+      {% if h in latest_by_horizon %}
+      <div class="flex flex-col items-center px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-xl min-w-[90px]">
+        <span class="font-label text-label text-on-surface-variant">{{ h }}d</span>
+        <span class="font-data-md text-data-md text-{{ color }} font-bold">
+          {{ "{:,.0f}".format(latest_by_horizon[h]) }}
+        </span>
+        <span class="font-label text-label text-on-surface-variant">kg/ha</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg mb-lg">
+    <div class="h-64">
+      <canvas id="dailyForecastChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Data sources table -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+    <div class="px-lg py-md border-b border-outline-variant">
+      <p class="font-label text-label text-on-surface-variant uppercase tracking-widest">Recent Runs</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b border-outline-variant">
+            {% for col in ["Date", "30d kg/ha", "60d kg/ha", "90d kg/ha", "IoT Readings", "LAI Source", "OpenMeteo"] %}
+            <th class="px-lg py-sm font-label text-label text-on-surface-variant whitespace-nowrap">{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in table_rows %}
+          <tr class="border-b border-outline-variant last:border-0 hover:bg-surface-container-low transition-colors">
+            <td class="px-lg py-sm font-data-md text-data-md text-on-surface">{{ row.date }}</td>
+            {% for h in [30, 60, 90] %}
+            <td class="px-lg py-sm font-data-md text-data-md">
+              {% if row[h] is not none %}
+                {{ "{:,.0f}".format(row[h]) }}
+              {% else %}
+                <span class="text-outline">—</span>
+              {% endif %}
+            </td>
+            {% endfor %}
+            <td class="px-lg py-sm font-data-md text-data-md text-on-surface-variant">
+              {{ row.iot if row.iot is not none else "—" }}
+            </td>
+            <td class="px-lg py-sm font-data-md text-data-md text-on-surface-variant">
+              {% if row.lai_source %}
+                {% if "sentinel2" in row.lai_source %}
+                  <span class="text-primary">{{ row.lai_source }}</span>
+                {% elif row.lai_source == "iot" %}
+                  <span class="text-secondary">IoT</span>
+                {% else %}
+                  <span class="text-outline">fallback</span>
+                {% endif %}
+              {% else %}—{% endif %}
+            </td>
+            <td class="px-lg py-sm">
+              {% if row.openmeteo %}
+                <span class="inline-flex items-center gap-xs px-sm py-xs bg-primary-container/20 text-primary rounded-full font-label text-label">
+                  <span class="material-symbols-outlined text-[12px]">check</span> yes
+                </span>
+              {% else %}
+                <span class="text-outline font-label text-label">no</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{% if has_daily %}
+<script>
+(function () {
+  const ctx = document.getElementById('dailyForecastChart').getContext('2d');
+  const labels  = {{ chart_dates | tojson }};
+  const day30   = {{ chart_day30 | tojson }};
+  const day60   = {{ chart_day60 | tojson }};
+  const day90   = {{ chart_day90 | tojson }};
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '30-day horizon',
+          data: day30,
+          borderColor: '#4648d4',
+          backgroundColor: 'rgba(70,72,212,0.08)',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.3,
+          fill: false,
+          spanGaps: true,
+        },
+        {
+          label: '60-day horizon',
+          data: day60,
+          borderColor: '#575992',
+          backgroundColor: 'rgba(87,89,146,0.06)',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.3,
+          fill: false,
+          spanGaps: true,
+        },
+        {
+          label: '90-day horizon',
+          data: day90,
+          borderColor: '#904900',
+          backgroundColor: 'rgba(144,73,0,0.06)',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.3,
+          fill: false,
+          spanGaps: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { font: { family: 'Inter', size: 12 }, color: '#464554', boxWidth: 16 },
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString('en', {maximumFractionDigits: 0}) + ' kg/ha' : '—'}`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            font: { family: 'JetBrains Mono', size: 10 },
+            maxTicksLimit: 10,
+            maxRotation: 0,
+          },
+        },
+        y: {
+          grid: { color: '#f5f2fe' },
+          ticks: { font: { family: 'JetBrains Mono', size: 11 } },
+          title: { display: true, text: 'kg / ha', font: { family: 'Inter', size: 11 }, color: '#767586' },
+        },
+      },
+    },
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

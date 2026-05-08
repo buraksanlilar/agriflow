@@ -26,6 +26,19 @@ CREATE TABLE IF NOT EXISTS decisions (
     yield_forecast_kg_ha REAL,
     pump_status          TEXT DEFAULT 'OFF'
 );
+CREATE TABLE IF NOT EXISTS daily_forecasts (
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    field_id             TEXT    NOT NULL,
+    date                 TEXT    NOT NULL,
+    horizon_days         INTEGER NOT NULL,
+    yield_forecast_kg_ha REAL,
+    iot_readings         INTEGER,
+    lai_value            REAL,
+    lai_source           TEXT,
+    openmeteo_used       INTEGER DEFAULT 0,
+    created_at           TEXT    NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_daily_forecasts_uniq ON daily_forecasts(field_id, date, horizon_days);
 CREATE INDEX IF NOT EXISTS idx_readings_field_ts ON sensor_readings(field_id, timestamp);
 CREATE INDEX IF NOT EXISTS idx_decisions_field_ts ON decisions(field_id, timestamp);
 """
@@ -152,3 +165,44 @@ def get_chart_series(field_id: str, date_from: str, date_to: str) -> list[dict]:
             (field_id, date_from, date_to),
         ).fetchall()
     return [dict(r) for r in rows]
+
+
+def upsert_daily_forecast(
+    field_id: str,
+    date: str,
+    horizon_days: int,
+    yield_forecast_kg_ha: float,
+    iot_readings: int,
+    lai_value: float | None,
+    lai_source: str,
+    openmeteo_used: bool,
+):
+    ts = datetime.now(timezone.utc).isoformat()
+    with _conn() as c:
+        c.execute(
+            """INSERT INTO daily_forecasts
+               (field_id, date, horizon_days, yield_forecast_kg_ha, iot_readings,
+                lai_value, lai_source, openmeteo_used, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?)
+               ON CONFLICT(field_id, date, horizon_days) DO UPDATE SET
+                 yield_forecast_kg_ha = excluded.yield_forecast_kg_ha,
+                 iot_readings         = excluded.iot_readings,
+                 lai_value            = excluded.lai_value,
+                 lai_source           = excluded.lai_source,
+                 openmeteo_used       = excluded.openmeteo_used,
+                 created_at           = excluded.created_at""",
+            (field_id, date, horizon_days, yield_forecast_kg_ha, iot_readings,
+             lai_value, lai_source, int(openmeteo_used), ts),
+        )
+
+
+def get_daily_forecasts(field_id: str, horizon_days: int = 30, n: int = 60) -> list[dict]:
+    with _conn() as c:
+        rows = c.execute(
+            """SELECT date, yield_forecast_kg_ha, iot_readings, lai_value, lai_source, openmeteo_used, created_at
+               FROM daily_forecasts
+               WHERE field_id=? AND horizon_days=?
+               ORDER BY date DESC LIMIT ?""",
+            (field_id, horizon_days, n),
+        ).fetchall()
+    return [dict(r) for r in reversed(rows)]

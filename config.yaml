@@ -11,6 +11,9 @@ mqtt:
 # Increase for noisier sensors; set to 1 for pre-aggregated daily payloads.
 decision_trigger_count: 24
 
+# Daily inference pipeline: runs at this UTC hour each day
+inference_hour_utc: 6
+
 fields:
   - id: field_001
     crop: wheat

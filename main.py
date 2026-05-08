@@ -33,10 +33,21 @@ async def lifespan(app: FastAPI):
         print(f"[agriflow] MQTT bridge skipped: {e}")
         app.state.bridge = None
 
+    try:
+        from services.daily_inference import DailyInferenceScheduler
+        scheduler = DailyInferenceScheduler(cfg, run_hour_utc=cfg.get("inference_hour_utc", 6))
+        scheduler.start()
+        app.state.scheduler = scheduler
+    except Exception as e:
+        print(f"[agriflow] Daily inference scheduler skipped: {e}")
+        app.state.scheduler = None
+
     yield
 
     if app.state.bridge:
         app.state.bridge.stop()
+    if app.state.scheduler:
+        app.state.scheduler.stop()
 
 
 app = FastAPI(title="AgriFlow", lifespan=lifespan)

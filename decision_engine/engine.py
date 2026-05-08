@@ -65,11 +65,23 @@ def _get_crop_te() -> dict:
 
 def _get_model(horizon_days: int):
     if horizon_days not in _models:
-        path = _MODELS_DIR / f"iot_lgbm_day{horizon_days}.joblib"
-        if not path.exists():
-            raise FileNotFoundError(f"Model not found: {path}")
-        _models[horizon_days] = joblib.load(path)
+        _reload_model(horizon_days)
     return _models[horizon_days]
+
+
+def reload_all_models():
+    """Force-reload all cached models from disk (call after retraining)."""
+    for h in list(_models.keys()):
+        _reload_model(h)
+
+
+def _reload_model(horizon_days: int):
+    path = _MODELS_DIR / f"iot_lgbm_day{horizon_days}.joblib"
+    if not path.exists():
+        raise FileNotFoundError(f"Model not found: {path}")
+    _models[horizon_days] = joblib.load(path)
+    import logging
+    logging.getLogger(__name__).info("Model loaded: %s", path.name)
 
 
 def irrigation_decision(crop: str, day_of_year: int, soil_moisture: float) -> dict:
@@ -129,21 +141,29 @@ def irrigation_amount(delta_sm: float, field_area_m2: float, root_depth: float) 
     return delta_sm * field_area_m2 * root_depth * 1000.0
 
 
+def _load_field_offsets() -> dict:
+    import json
+    path = _HERE / "models" / "field_yield_offsets.json"
+    if path.exists():
+        with open(path) as f:
+            return json.load(f)
+    return {}
+
+
 def yield_forecast(
     features: dict,
     crop: str,
     horizon_days: int = 30,
+    field_id: str | None = None,
 ) -> float:
     """
     Predict yield (kg/ha) with the IoT LightGBM model.
 
-    features must supply all keys in _FEATURE_ORDER except crop_te:
-      mean_temp, total_precip, mean_humidity, mean_soil_temp,
-      mean_soil_moisture, max_lai, season_days, latitude, longitude,
-      elevation, year, WAV
-
+    features must supply all keys in _FEATURE_ORDER except crop_te.
     crop_te is resolved automatically from the trained encoding map.
     horizon_days must be 30, 60, or 90.
+    field_id is optional — if provided, applies a bias correction offset
+    saved by retrain.py after the first real harvest.
     """
     if horizon_days not in (30, 60, 90):
         raise ValueError("horizon_days must be 30, 60, or 90")
@@ -156,7 +176,18 @@ def yield_forecast(
         raise ValueError(f"Missing features: {missing}")
 
     X = pd.DataFrame([{k: row[k] for k in _FEATURE_ORDER}])
-    return float(_get_model(horizon_days).predict(X)[0])
+    prediction = float(_get_model(horizon_days).predict(X)[0])
+
+    if field_id:
+        offset = _load_field_offsets().get(f"{field_id}__day{horizon_days}", 0.0)
+        if offset:
+            import logging
+            logging.getLogger(__name__).debug(
+                "Applying bias offset %+.1f kg/ha for %s day%d", offset, field_id, horizon_days
+            )
+            prediction += offset
+
+    return prediction
 
 
 def make_actuator_command(

@@ -177,7 +177,7 @@ class SensorConsumer:
             "WAV":       field_cfg["wav"],
         }
         horizon = field_cfg.get("horizon_days", 30)
-        predicted_yield = yield_forecast(forecast_features, crop, horizon_days=horizon)
+        predicted_yield = yield_forecast(forecast_features, crop, horizon_days=horizon, field_id=field_id)
 
         command = make_actuator_command(field_id, alarm, volume, predicted_yield)
         self._publisher.publish(field_id, command)

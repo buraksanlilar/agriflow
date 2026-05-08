@@ -1,0 +1,20 @@
+{
+  "field_001__day30": [
+    {
+      "mean_temp": 21.911572404371586,
+      "total_precip": 409.5,
+      "mean_humidity": 59.913469945355196,
+      "mean_soil_temp": 18.001881147540985,
+      "mean_soil_moisture": 0.2831830601092896,
+      "max_lai": 2.921,
+      "season_days": 112.0,
+      "latitude": 39.93,
+      "longitude": 32.86,
+      "elevation": 850.0,
+      "year": 2026.0,
+      "WAV": 100.0,
+      "crop_te": 4813.100935174241,
+      "actual_yield": 4900.0
+    }
+  ]
+}
