@@ -102,9 +102,13 @@ async def forecast_page(request: Request, field_id: str | None = None):
 
 
 @router.get("/forecast/quick", response_class=HTMLResponse)
-async def quick_forecast_page(request: Request):
+async def quick_forecast_page(request: Request, field_id: str | None = None):
+    fields = request.app.state.config["fields"]
+    fid = field_id or fields[0]["id"]
     return templates.TemplateResponse(request, "quick_forecast.html", {
         "active_page": "quick_forecast",
+        "fields": fields,
+        "field_id": fid,
         "crops": _crop_list(),
         "today": date.today().isoformat(),
     })

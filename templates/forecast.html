@@ -15,7 +15,7 @@
           hx-target="#forecast-result"
           hx-swap="outerHTML"
           hx-indicator="#forecast-spinner"
-          class="space-y-lg">
+          class="space-y-md">
 
       <input type="hidden" name="field_id" value="{{ field_id }}"/>
 
@@ -51,9 +51,9 @@
       </div>
 
       <!-- Feature inputs -->
-      <div class="space-y-sm">
+      <div class="space-y-xs">
         <p class="font-label text-label text-on-surface-variant">Sensor Aggregates (daily)</p>
-        <div class="grid grid-cols-2 gap-md">
+        <div class="grid grid-cols-3 gap-sm">
           {% set sensor_fields = [
             ("mean_temp",           "Mean Temp °C",     latest.get("air_temp",      18.0)),
             ("total_precip",        "Precip mm",        0.0),
@@ -66,15 +66,15 @@
           <div class="space-y-xs">
             <label class="font-label text-label text-on-surface-variant block">{{ label }}</label>
             <input type="number" step="any" name="{{ name }}" value="{{ default }}"
-                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm focus:outline-none focus:border-primary transition-colors font-data-md text-data-md"/>
+                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-xs focus:outline-none focus:border-primary transition-colors font-data-md text-data-md text-sm"/>
           </div>
           {% endfor %}
         </div>
       </div>
 
-      <div class="space-y-sm">
+      <div class="space-y-xs">
         <p class="font-label text-label text-on-surface-variant">Season & Location</p>
-        <div class="grid grid-cols-2 gap-md">
+        <div class="grid grid-cols-3 gap-sm">
           {% set meta_fields = [
             ("season_days", "Season Day",  150),
             ("year",        "Year",        2024),
@@ -87,14 +87,14 @@
           <div class="space-y-xs">
             <label class="font-label text-label text-on-surface-variant block">{{ label }}</label>
             <input type="number" step="any" name="{{ name }}" value="{{ default }}"
-                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-md py-sm focus:outline-none focus:border-primary transition-colors font-data-md text-data-md"/>
+                   class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-sm py-xs focus:outline-none focus:border-primary transition-colors font-data-md text-data-md text-sm"/>
           </div>
           {% endfor %}
         </div>
       </div>
 
       <button type="submit"
-              class="w-full bg-primary text-on-primary font-h2 text-h2 py-md rounded-lg hover:bg-on-primary-fixed-variant transition-colors active:scale-[0.98] mt-xl relative">
+              class="w-full bg-primary text-on-primary font-h2 text-h2 py-sm rounded-lg hover:bg-on-primary-fixed-variant transition-colors active:scale-[0.98] relative">
         <span id="forecast-spinner" class="htmx-indicator absolute left-md top-1/2 -translate-y-1/2">
           <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
         </span>
@@ -104,9 +104,9 @@
   </section>
 
   <!-- Result panel -->
-  <section>
+  <section class="sticky top-4">
     <div id="forecast-result">
-      <div class="border-2 border-dashed border-outline-variant rounded-xl h-64 flex flex-col items-center justify-center gap-sm">
+      <div class="border-2 border-dashed border-outline-variant rounded-xl h-full min-h-[420px] flex flex-col items-center justify-center gap-sm">
         <span class="material-symbols-outlined text-outline-variant text-[32px]">analytics</span>
         <span class="text-on-surface-variant font-label text-label">Configure inputs and run a forecast</span>
       </div>

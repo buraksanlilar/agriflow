@@ -2,7 +2,7 @@
 {% block title %} — Live Monitoring{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-12 gap-lg">
+<div class="grid grid-cols-12 gap-lg items-start">
 
   <!-- Left: sensor grid + alarm bar (8 cols) -->
   <div class="col-span-12 lg:col-span-8 flex flex-col gap-lg">
@@ -10,7 +10,7 @@
   </div>
 
   <!-- Right: irrigation card (4 cols) -->
-  <div class="col-span-12 lg:col-span-4">
+  <div class="col-span-12 lg:col-span-4 sticky top-4">
     {% include "partials/irrigation_card.html" %}
   </div>
 
