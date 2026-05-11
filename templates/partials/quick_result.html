@@ -1,0 +1,206 @@
+{% if error %}
+<div class="bg-error-container/20 border border-error/30 rounded-xl p-md text-error font-label text-label mb-lg flex items-center gap-xs">
+  <span class="material-symbols-outlined text-[14px]">error</span> {{ error }}
+</div>
+{% endif %}
+
+<!-- Header row -->
+<div class="flex items-start justify-between mb-lg">
+  <div>
+    <div class="flex items-center gap-sm mb-xs">
+      <span class="material-symbols-outlined text-primary">grass</span>
+      <h3 class="font-h2 text-h2 text-on-background capitalize">{{ crop }}</h3>
+      <span class="font-label text-label text-on-surface-variant bg-surface-container px-sm py-xs rounded-full">
+        {{ "%.4f"|format(latitude) }}, {{ "%.4f"|format(longitude) }}
+      </span>
+    </div>
+    <p class="font-label text-label text-on-surface-variant">
+      Ekiliş: <strong class="text-on-surface">{{ planting_date }}</strong> ·
+      Alan: <strong class="text-on-surface">{{ area_ha }} ha</strong> ·
+      Sezon günü: <strong class="text-on-surface">{{ season_days }}</strong>
+    </p>
+  </div>
+  <div class="flex items-center gap-lg">
+    <div class="text-right">
+      <p class="font-label text-label text-on-surface-variant">Tahmini hasat</p>
+      <p class="font-data-md text-data-md text-on-surface font-semibold">{{ harvest_date }}</p>
+    </div>
+    <div class="w-px h-8 bg-outline-variant"></div>
+    <div class="text-right">
+      <p class="font-label text-label text-on-surface-variant">Kalan süre</p>
+      <p class="font-data-md text-data-md text-primary font-bold">
+        {% if days_to_harvest == 0 %}Hasat!{% else %}{{ days_to_harvest }} gün{% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Season progress bar -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg mb-lg">
+  <div class="flex justify-between items-center mb-sm">
+    <span class="font-label text-label text-outline">{{ planting_date }}</span>
+    <span class="font-label text-label text-primary font-bold">%{{ harvest_pct }} tamamlandı</span>
+    <span class="font-label text-label text-outline">{{ harvest_date }}</span>
+  </div>
+  <div class="w-full bg-surface-container-high rounded-full h-2">
+    <div class="bg-primary h-2 rounded-full" style="width: {{ harvest_pct }}%"></div>
+  </div>
+</div>
+
+<!-- 30 / 60 / 90 day forecast cards -->
+<div class="grid grid-cols-3 gap-lg mb-lg">
+  {% for h, color in [(30, "primary"), (60, "secondary"), (90, "tertiary")] %}
+  {% set f = forecasts[h] %}
+  {% set is_rec = (h == recommended_horizon) %}
+  {% set diff = days_to_harvest - h %}
+  <div class="rounded-xl p-lg flex flex-col gap-sm
+    {% if is_rec %}bg-primary/5 border-2 border-primary{% else %}bg-surface-container-lowest border border-outline-variant opacity-60{% endif %}">
+    <div class="flex items-center justify-between">
+      <span class="font-label text-label text-on-surface-variant uppercase tracking-widest">{{ h }}-gün</span>
+      {% if is_rec %}
+        <span class="bg-primary text-on-primary font-label px-sm py-xs rounded-full" style="font-size:10px">Önerilen</span>
+      {% endif %}
+    </div>
+    <p class="font-label text-outline" style="font-size:11px">
+      {% if diff > 0 %}hasata {{ diff }} gün erken
+      {% elif diff == 0 %}tam zamanı
+      {% else %}{{ diff|abs }} gün geç{% endif %}
+    </p>
+    {% if f.get("error") %}
+      <span class="text-error font-label text-label">{{ f.error }}</span>
+    {% else %}
+      <div class="mt-xs">
+        <span class="font-data-md font-bold text-{{ color }}" style="font-size:2.2rem">{{ "{:,}".format(f.kg_ha) }}</span>
+        <span class="font-label text-label text-on-surface-variant ml-xs">kg/ha</span>
+      </div>
+      <div>
+        <span class="font-data-md font-semibold text-on-surface" style="font-size:1.1rem">{{ "{:,}".format(f.total_kg) }} kg</span>
+        <span class="font-label text-label text-on-surface-variant ml-xs">toplam</span>
+      </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Sentinel-2 + Weather summary -->
+<div class="grid grid-cols-2 gap-lg mb-lg">
+
+  {% if latest_s2 %}
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+    <div class="flex items-center justify-between mb-md">
+      <span class="font-label text-label text-on-surface-variant uppercase tracking-widest">Sentinel-2</span>
+      <span class="font-label text-label text-outline">{{ latest_s2.date }} · {{ s2_scene_count }} sahne</span>
+    </div>
+    <div class="grid grid-cols-2 gap-md">
+      {% for key, label, color in [("ndvi","NDVI","primary"),("lai","LAI","secondary"),("ndwi","NDWI","tertiary"),("ndre","NDRE","on-surface")] %}
+      <div>
+        <p class="font-label text-label text-on-surface-variant">{{ label }}</p>
+        <p class="font-data-md font-bold text-{{ color }}" style="font-size:1.5rem">{{ "%.3f"|format(latest_s2.get(key, 0)) }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="font-label text-label text-outline mt-md">
+      max LAI (model): <strong>{{ "%.2f"|format(features.max_lai) }}</strong>
+    </p>
+  </div>
+  {% else %}
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center gap-sm text-center">
+    <span class="material-symbols-outlined text-outline-variant text-[28px]">cloud_off</span>
+    <span class="font-label text-label text-on-surface-variant">No Sentinel-2 scenes found</span>
+  </div>
+  {% endif %}
+
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+    <span class="font-label text-label text-on-surface-variant uppercase tracking-widest block mb-md">OpenMeteo Sezon</span>
+    <div class="grid grid-cols-2 gap-md">
+      {% for label, val, unit in [
+        ("Ort. Sıcaklık",  features.mean_temp,          "°C"),
+        ("Toplam Yağış",   features.total_precip,        "mm"),
+        ("Nem",            features.mean_humidity,       "%"),
+        ("Toprak Sıc.",    features.mean_soil_temp,      "°C"),
+        ("Toprak Nemi",    features.mean_soil_moisture,  "m³/m³"),
+      ] %}
+      <div>
+        <p class="font-label text-label text-on-surface-variant">{{ label }}</p>
+        <p class="font-data-md text-data-md text-on-surface font-semibold">
+          {% if val is not none %}{{ "%.2f"|format(val) }} {{ unit }}{% else %}—{% endif %}
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Charts row -->
+<div class="grid grid-cols-2 gap-lg">
+
+  {% if chart_dates %}
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+    <p class="font-label text-label text-on-surface-variant mb-md uppercase tracking-widest">Bitki Endeksleri (S2)</p>
+    <div class="h-52">
+      <canvas id="quickS2Chart"></canvas>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if weather_dates %}
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+    <p class="font-label text-label text-on-surface-variant mb-md uppercase tracking-widest">Sezon Hava Durumu</p>
+    <div class="h-52">
+      <canvas id="quickWeatherChart"></canvas>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+(function () {
+  {% if chart_dates %}
+  new Chart(document.getElementById('quickS2Chart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: {{ chart_dates | tojson }},
+      datasets: [
+        { label: 'LAI',  data: {{ chart_lai  | tojson }}, borderColor: '#2d7d2d', borderWidth: 2, pointRadius: 4, tension: 0.3, spanGaps: true, yAxisID: 'y' },
+        { label: 'NDVI', data: {{ chart_ndvi | tojson }}, borderColor: '#4648d4', borderWidth: 2, pointRadius: 4, tension: 0.3, spanGaps: true, yAxisID: 'y2' },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { font: { family: 'Inter', size: 11 }, color: '#464554', boxWidth: 12 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxTicksLimit: 6, maxRotation: 0 } },
+        y:  { position: 'left',  title: { display: true, text: 'LAI',  font: { size: 10 }, color: '#2d7d2d' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+        y2: { position: 'right', title: { display: true, text: 'NDVI', font: { size: 10 }, color: '#4648d4' }, grid: { drawOnChartArea: false }, min: 0, max: 1, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+      },
+    },
+  });
+  {% endif %}
+
+  {% if weather_dates %}
+  new Chart(document.getElementById('quickWeatherChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: {{ weather_dates | tojson }},
+      datasets: [
+        { label: 'Precip mm', data: {{ weather_precip | tojson }}, backgroundColor: 'rgba(0,119,182,0.5)', yAxisID: 'yp', order: 2 },
+        { label: 'Temp °C',   data: {{ weather_temp   | tojson }}, type: 'line', borderColor: '#e07b00', borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: true, yAxisID: 'yt', order: 1 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { font: { family: 'Inter', size: 11 }, color: '#464554', boxWidth: 12 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxTicksLimit: 6, maxRotation: 0 } },
+        yp: { position: 'left',  title: { display: true, text: 'mm', font: { size: 10 }, color: '#0077b6' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+        yt: { position: 'right', title: { display: true, text: '°C', font: { size: 10 }, color: '#e07b00' }, grid: { drawOnChartArea: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+      },
+    },
+  });
+  {% endif %}
+})();
+</script>

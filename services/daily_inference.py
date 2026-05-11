@@ -105,22 +105,30 @@ def run_for_field(field_cfg: dict, target_date: date, horizon_days: int):
     total_precip  = _pick("total_precip",  "precipitation_sum")
     mean_humidity = _pick("mean_humidity", "relative_humidity_2m_mean")
     mean_soil_temp= _pick("mean_soil_temp","soil_temperature_0_to_7cm_mean")
-    mean_soil_mois= _pick("mean_soil_moisture", None, fallback=0.25)
+    mean_soil_mois= _pick("mean_soil_moisture", "soil_moisture_0_to_7cm_mean", fallback=0.25)
 
-    # 3. Sentinel-2 LAI (cached; fall back to IoT sensor value or seasonal default)
+    # 3. Sentinel-2 indices (cached; fall back to IoT sensor value or seasonal default)
     lai_value, lai_source = None, "fallback"
+    ndvi, ndwi, ndre = None, None, None
     try:
-        from services.sentinel_lai import fetch_lai
-        lai_value, scene_date = fetch_lai(lat, lon)
-        lai_source = f"sentinel2:{scene_date}"
-        logger.info("field=%s Sentinel-2 LAI=%.2f (scene %s)", field_id, lai_value, scene_date)
+        from services.sentinel_lai import fetch_indices
+        s2 = fetch_indices(lat, lon)
+        lai_value  = s2["lai"]
+        ndvi       = s2["ndvi"]
+        ndwi       = s2["ndwi"]
+        ndre       = s2["ndre"]
+        lai_source = f"sentinel2:{s2['scene_date']}"
+        logger.info(
+            "field=%s Sentinel-2 LAI=%.2f NDVI=%.3f NDWI=%.3f NDRE=%.3f (scene %s)",
+            field_id, lai_value, ndvi, ndwi, ndre, s2["scene_date"],
+        )
     except Exception as e:
-        logger.warning("field=%s Sentinel-2 LAI failed: %s", field_id, e)
+        logger.warning("field=%s Sentinel-2 failed: %s", field_id, e)
         if iot and iot.get("max_lai"):
             lai_value = iot["max_lai"]
             lai_source = "iot"
         else:
-            lai_value = field_cfg.get("wav", 2.0) / 100.0 * 3  # rough seasonal default
+            lai_value = field_cfg.get("wav", 2.0) / 100.0 * 3
             lai_source = "fallback"
 
     # 4. Build full feature vector
@@ -156,6 +164,9 @@ def run_for_field(field_cfg: dict, target_date: date, horizon_days: int):
         lai_value=lai_value,
         lai_source=lai_source,
         openmeteo_used=openmeteo_used,
+        ndvi=ndvi,
+        ndwi=ndwi,
+        ndre=ndre,
     )
 
 

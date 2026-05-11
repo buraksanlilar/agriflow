@@ -47,6 +47,25 @@ CREATE INDEX IF NOT EXISTS idx_decisions_field_ts ON decisions(field_id, timesta
 def init_db():
     with _conn() as c:
         c.executescript(_DDL)
+    _migrate()
+
+
+def _migrate():
+    new_columns = [
+        "ALTER TABLE daily_forecasts ADD COLUMN ndvi REAL",
+        "ALTER TABLE daily_forecasts ADD COLUMN ndwi REAL",
+        "ALTER TABLE daily_forecasts ADD COLUMN ndre REAL",
+    ]
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        for sql in new_columns:
+            try:
+                conn.execute(sql)
+            except sqlite3.OperationalError:
+                pass  # column already exists
+        conn.commit()
+    finally:
+        conn.close()
 
 
 @contextmanager
@@ -176,30 +195,37 @@ def upsert_daily_forecast(
     lai_value: float | None,
     lai_source: str,
     openmeteo_used: bool,
+    ndvi: float | None = None,
+    ndwi: float | None = None,
+    ndre: float | None = None,
 ):
     ts = datetime.now(timezone.utc).isoformat()
     with _conn() as c:
         c.execute(
             """INSERT INTO daily_forecasts
                (field_id, date, horizon_days, yield_forecast_kg_ha, iot_readings,
-                lai_value, lai_source, openmeteo_used, created_at)
-               VALUES (?,?,?,?,?,?,?,?,?)
+                lai_value, lai_source, openmeteo_used, ndvi, ndwi, ndre, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
                ON CONFLICT(field_id, date, horizon_days) DO UPDATE SET
                  yield_forecast_kg_ha = excluded.yield_forecast_kg_ha,
                  iot_readings         = excluded.iot_readings,
                  lai_value            = excluded.lai_value,
                  lai_source           = excluded.lai_source,
                  openmeteo_used       = excluded.openmeteo_used,
+                 ndvi                 = excluded.ndvi,
+                 ndwi                 = excluded.ndwi,
+                 ndre                 = excluded.ndre,
                  created_at           = excluded.created_at""",
             (field_id, date, horizon_days, yield_forecast_kg_ha, iot_readings,
-             lai_value, lai_source, int(openmeteo_used), ts),
+             lai_value, lai_source, int(openmeteo_used), ndvi, ndwi, ndre, ts),
         )
 
 
 def get_daily_forecasts(field_id: str, horizon_days: int = 30, n: int = 60) -> list[dict]:
     with _conn() as c:
         rows = c.execute(
-            """SELECT date, yield_forecast_kg_ha, iot_readings, lai_value, lai_source, openmeteo_used, created_at
+            """SELECT date, yield_forecast_kg_ha, iot_readings, lai_value, lai_source,
+                      openmeteo_used, ndvi, ndwi, ndre, created_at
                FROM daily_forecasts
                WHERE field_id=? AND horizon_days=?
                ORDER BY date DESC LIMIT ?""",

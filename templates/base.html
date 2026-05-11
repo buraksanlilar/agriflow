@@ -55,7 +55,7 @@ tailwind.config = {
 </script>
 <style>
   .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
-  .nav-icon { @apply flex items-center justify-center w-8 h-8 mx-auto rounded-lg transition-all duration-200 cursor-pointer; }
+  .nav-icon { @apply flex items-center justify-center w-9 h-9 mx-auto rounded-xl transition-all duration-200 cursor-pointer; }
   .nav-icon.active { @apply bg-primary-container text-on-primary-container; }
   .nav-icon:not(.active) { @apply text-on-surface-variant hover:text-primary hover:bg-surface-container-high; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -65,28 +65,31 @@ tailwind.config = {
 <body class="bg-background text-on-surface font-body overflow-hidden">
 
 <!-- Sidebar -->
-<aside class="fixed left-0 top-0 h-full w-[48px] border-r border-outline-variant flex flex-col py-md z-50 bg-surface">
+<aside class="fixed left-0 top-0 h-full w-[72px] border-r border-outline-variant flex flex-col py-lg z-50 bg-surface">
   <div class="mb-xl flex items-center justify-center">
-    <span class="material-symbols-outlined text-primary text-[20px]">grain</span>
+    <span class="material-symbols-outlined text-primary text-[22px]">grain</span>
   </div>
-  <nav class="flex flex-col gap-sm flex-1">
+  <nav class="flex flex-col gap-md flex-1 px-sm">
     <a href="/monitoring" class="nav-icon {% if active_page == 'monitoring' %}active{% endif %}">
-      <span class="material-symbols-outlined text-[20px]">dashboard</span>
+      <span class="material-symbols-outlined text-[22px]">dashboard</span>
     </a>
     <a href="/forecast" class="nav-icon {% if active_page == 'forecast' %}active{% endif %}">
-      <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+      <span class="material-symbols-outlined text-[22px]">bar_chart</span>
+    </a>
+    <a href="/forecast/quick" class="nav-icon {% if active_page == 'quick_forecast' %}active{% endif %}">
+      <span class="material-symbols-outlined text-[22px]">satellite_alt</span>
     </a>
     <a href="/profile" class="nav-icon {% if active_page == 'profile' %}active{% endif %}">
-      <span class="material-symbols-outlined text-[20px]">water_drop</span>
+      <span class="material-symbols-outlined text-[22px]">water_drop</span>
     </a>
     <a href="/history" class="nav-icon {% if active_page == 'history' %}active{% endif %}">
-      <span class="material-symbols-outlined text-[20px]">history</span>
+      <span class="material-symbols-outlined text-[22px]">history</span>
     </a>
   </nav>
 </aside>
 
 <!-- Top navbar -->
-<header class="fixed top-0 right-0 w-[calc(100%-48px)] h-16 border-b border-outline-variant bg-surface flex justify-between items-center px-lg z-40">
+<header class="fixed top-0 right-0 w-[calc(100%-72px)] h-16 border-b border-outline-variant bg-surface flex justify-between items-center px-lg z-40">
   <div class="flex items-center gap-xl">
     <h1 class="font-h1 text-h1 text-on-background">AgriFlow</h1>
     <nav class="hidden md:flex items-center gap-lg">
@@ -117,7 +120,7 @@ tailwind.config = {
 </header>
 
 <!-- Main content -->
-<main class="pt-16 pl-[48px] h-screen w-full overflow-y-auto scrollbar-hide bg-background">
+<main class="pt-16 pl-[72px] h-screen w-full overflow-y-auto scrollbar-hide bg-background">
   <div class="max-w-[1440px] mx-auto p-lg">
     {% block content %}{% endblock %}
   </div>

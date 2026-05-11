@@ -53,7 +53,7 @@
       <!-- Feature inputs -->
       <div class="space-y-sm">
         <p class="font-label text-label text-on-surface-variant">Sensor Aggregates (daily)</p>
-        <div class="grid grid-cols-3 gap-md">
+        <div class="grid grid-cols-2 gap-md">
           {% set sensor_fields = [
             ("mean_temp",           "Mean Temp °C",     latest.get("air_temp",      18.0)),
             ("total_precip",        "Precip mm",        0.0),
@@ -74,7 +74,7 @@
 
       <div class="space-y-sm">
         <p class="font-label text-label text-on-surface-variant">Season & Location</p>
-        <div class="grid grid-cols-3 gap-md">
+        <div class="grid grid-cols-2 gap-md">
           {% set meta_fields = [
             ("season_days", "Season Day",  150),
             ("year",        "Year",        2024),
@@ -114,6 +114,53 @@
   </section>
 
 </div>
+
+<!-- Satellite Health Indices -->
+{% if has_s2 %}
+<section class="mt-xl">
+  <div class="mb-lg">
+    <h3 class="font-h2 text-h2 text-on-background">Satellite Health Indices</h3>
+    <p class="font-label text-label text-on-surface-variant mt-xs">
+      Sentinel-2 L2A — NDVI · NDWI · NDRE computed from real COG pixels
+    </p>
+  </div>
+
+  <!-- Index badges -->
+  {% set latest_s2 = namespace(ndvi=none, ndwi=none, ndre=none) %}
+  {% for row in table_rows %}
+    {% if latest_s2.ndvi is none and row.ndvi is defined and row.ndvi is not none %}
+      {% set latest_s2.ndvi = row.ndvi %}
+      {% set latest_s2.ndwi = row.ndwi %}
+      {% set latest_s2.ndre = row.ndre %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="grid grid-cols-3 gap-md mb-lg">
+    {% set indices = [
+      ("NDVI", latest_s2.ndvi, "Vegetation density", "primary",   "0 = bare soil · 1 = dense crop"),
+      ("NDWI", latest_s2.ndwi, "Water stress",       "secondary", ">0.2 = well-watered · 0–0.2 = mild stress · <0 = dry"),
+      ("NDRE", latest_s2.ndre, "Chlorophyll / N",    "tertiary",  "higher = healthier canopy"),
+    ] %}
+    {% for name, val, title, color, hint in indices %}
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col gap-xs">
+      <span class="font-label text-label text-on-surface-variant uppercase tracking-widest">{{ name }}</span>
+      <span class="font-data-md text-[2rem] font-bold text-{{ color }}">
+        {% if val is not none %}{{ "%.3f"|format(val) }}{% else %}—{% endif %}
+      </span>
+      <span class="font-label text-label text-on-surface-variant">{{ title }}</span>
+      <span class="font-label text-label text-outline mt-xs">{{ hint }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Indices chart -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+    <div class="h-56">
+      <canvas id="s2IndicesChart"></canvas>
+    </div>
+  </div>
+</section>
+{% endif %}
 
 <!-- Daily Forecast History -->
 {% if has_daily %}
@@ -211,6 +258,51 @@
 {% endblock %}
 
 {% block scripts %}
+{% if has_s2 %}
+<script>
+(function () {
+  const ctx    = document.getElementById('s2IndicesChart').getContext('2d');
+  const labels = {{ chart_dates | tojson }};
+  const ndvi   = {{ chart_ndvi  | tojson }};
+  const ndwi   = {{ chart_ndwi  | tojson }};
+  const ndre   = {{ chart_ndre  | tojson }};
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'NDVI', data: ndvi, borderColor: '#2d7d2d', backgroundColor: 'rgba(45,125,45,0.06)',
+          borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false, spanGaps: true },
+        { label: 'NDWI', data: ndwi, borderColor: '#0077b6', backgroundColor: 'rgba(0,119,182,0.06)',
+          borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false, spanGaps: true },
+        { label: 'NDRE', data: ndre, borderColor: '#e07b00', backgroundColor: 'rgba(224,123,0,0.06)',
+          borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false, spanGaps: true },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { font: { family: 'Inter', size: 12 }, color: '#464554', boxWidth: 16 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(3) : '—'}`,
+          },
+        },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxTicksLimit: 10, maxRotation: 0 } },
+        y: { grid: { color: '#f5f2fe' }, ticks: { font: { family: 'JetBrains Mono', size: 11 } },
+             title: { display: true, text: 'index value', font: { family: 'Inter', size: 11 }, color: '#767586' } },
+      },
+    },
+  });
+})();
+</script>
+{% endif %}
+
 {% if has_daily %}
 <script>
 (function () {
